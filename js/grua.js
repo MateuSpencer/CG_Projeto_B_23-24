@@ -75,6 +75,7 @@ function createCrane(x, y, z) {
 function createScene() {
     'use strict';
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xadd8e6);
     scene.add(new THREE.AxesHelper(20));
     createCrane(0, 0, 0).name = "Crane";
 }
