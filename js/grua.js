@@ -162,4 +162,11 @@ function init() {
     window.addEventListener("resize", onResize);
 }
 
+function animate() {
+    'use strict';
+    render();
+    requestAnimationFrame(animate);
+}
+
 init();
+animate();
