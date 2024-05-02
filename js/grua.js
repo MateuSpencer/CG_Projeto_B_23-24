@@ -58,7 +58,7 @@ function createGrabber(obj) {
 function createCrane(x, y, z) {
     'use strict';
     var crane = new THREE.Object3D();
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
 
     createBase(crane);
     createTower(crane);
@@ -77,6 +77,10 @@ function createScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xadd8e6);
     scene.add(new THREE.AxesHelper(20));
+
+    var light = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(light);
+
     createCrane(0, 0, 0).name = "Crane";
 }
 
@@ -109,7 +113,7 @@ function setupCameras() {
     cameraHook.position.set(0, -10, 0);
     cameras.push(cameraHook);
 
-    activeCamera = cameraFront;
+    activeCamera = cameraPerspective;
     controls = new OrbitControls(activeCamera, renderer.domElement);
 }
 
