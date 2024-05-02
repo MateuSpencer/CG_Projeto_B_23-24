@@ -96,16 +96,15 @@ function createScene() {
 function setupCameras() {
     const aspectRatio = window.innerWidth / window.innerHeight;
 
-    // Orthographic cameras
-    const cameraFront = new THREE.OrthographicCamera(-50 * aspectRatio, 50 * aspectRatio, 50, -50, 1, 100);
-    cameraFront.position.set(0, 20, 100);
+    const cameraFront = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
+    cameraFront.position.set(100, 20, 0);
     cameras.push(cameraFront);
-
-    const cameraSide = new THREE.OrthographicCamera(-50 * aspectRatio, 50 * aspectRatio, 50, -50, 1, 100);
-    cameraSide.position.set(100, 20, 0);
+    
+    const cameraSide = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
+    cameraSide.position.set(0, 20, 107);
     cameras.push(cameraSide);
-
-    const cameraTop = new THREE.OrthographicCamera(-50 * aspectRatio, 50 * aspectRatio, 50, -50, 1, 100);
+    
+    const cameraTop = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
     cameraTop.position.set(0, 100, 0);
     cameraTop.lookAt(0, 0, 0);
     cameras.push(cameraTop);
@@ -113,7 +112,14 @@ function setupCameras() {
     // Perspective camera
     const cameraPerspective = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
     cameraPerspective.position.set(50, 50, 50);
+    cameraPerspective.lookAt(0, 0, 0);
     cameras.push(cameraPerspective);
+
+    // Orthographic camera
+    const cameraOrthographic = new THREE.OrthographicCamera(window.innerWidth / - 8, window.innerWidth / 8, window.innerHeight / 8, window.innerHeight / - 8, 1, 1000);    
+    cameraOrthographic.position.set(50, 50, 50);
+    cameraOrthographic.lookAt(0, 0, 0);
+    cameras.push(cameraOrthographic);
 
     // Hook camera (movable)
     const crane = scene.getObjectByName("Crane");
