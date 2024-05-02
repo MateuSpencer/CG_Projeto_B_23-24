@@ -9,7 +9,7 @@ var activeCamera;
 
 function createBase(obj) {
     'use strict';
-    const geometry = new THREE.BoxGeometry(10, 2, 10);
+    const geometry = new THREE.BoxGeometry(10, 3, 10);
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 1, 0);
     obj.add(mesh);
@@ -17,9 +17,9 @@ function createBase(obj) {
 
 function createTower(obj) {
     'use strict';
-    const geometry = new THREE.CylinderGeometry(1, 1, 20, 8);
+    const geometry = new THREE.BoxGeometry(2, 40, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 12, 0);
+    mesh.position.set(0, 20, 0);
     obj.add(mesh);
 }
 
@@ -27,49 +27,58 @@ function createBoom(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(20, 2, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(10, 20, 0);  // Position the boom at the top of the tower
+    mesh.position.set(10, 34, 0);
+    obj.add(mesh);
+}
+
+function createCounterBoom(obj) {
+    'use strict';
+    const geometry = new THREE.BoxGeometry(10, 2, 2);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(-5, 34, 0);
     obj.add(mesh);
 }
 
 function createCounterweight(obj) {
     'use strict';
-    const geometry = new THREE.BoxGeometry(6, 2, 2);
+    const geometry = new THREE.BoxGeometry(3, 6, 8);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-8, 20, 0);  // Behind the tower
+    mesh.position.set(-7, 32, 0);
     obj.add(mesh);
 }
 
-function createHook(obj) {
+function createCable(obj) {
     'use strict';
-    const geometry = new THREE.BoxGeometry(0.5, 5, 0.5);
+    const geometry = new THREE.CylinderGeometry(0.5,0.5 , 14);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(10, 12.5, 0);  // Hanging below the boom
+    mesh.position.set(14, 25, 0); 
     obj.add(mesh);
 }
 
-function createGrabber(obj) {
+function createHookBase(obj) {
     'use strict';
-    const geometry = new THREE.ConeGeometry(1, 2, 4);
+    const geometry = new THREE.ConeGeometry(2, 2, 4);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(10, 10, 0);  // Attached to the hook
+    mesh.position.set(14, 18, 0);
     obj.add(mesh);
 }
 
 function createCrane(x, y, z) {
     'use strict';
     var crane = new THREE.Object3D();
-    material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+    material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
 
     createBase(crane);
     createTower(crane);
     createBoom(crane);
+    createCounterBoom(crane);
     createCounterweight(crane);
-    createHook(crane);
-    createGrabber(crane);
+    createCable(crane);
+    createHookBase(crane);
 
     scene.add(crane);
     crane.position.set(x, y, z);
-    return crane; // Return the crane object
+    return crane;
 }
 
 function createScene() {
