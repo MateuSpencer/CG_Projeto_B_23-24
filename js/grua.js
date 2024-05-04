@@ -166,10 +166,25 @@ function onResize() {
     });
 }
 
+var wireframeMode = false;
+
+function toggleWireframeMode() {
+    'use strict';
+    wireframeMode = !wireframeMode;
+    scene.traverse(function(child) {
+        if (child instanceof THREE.Mesh) {
+            child.material.wireframe = wireframeMode;
+        }
+    });
+}
+
 function onKeyDown(e) {
     'use strict';
     const key = parseInt(e.key);
     if (key >= 1 && key <= 5) {
+        if (key === 1) {
+            toggleWireframeMode();
+        }
         activeCamera = cameras[key - 1];
         controls.object = activeCamera;
         controls.update();
@@ -203,3 +218,5 @@ function animate() {
 
 init();
 animate();
+
+
