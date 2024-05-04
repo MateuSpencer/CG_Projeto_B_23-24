@@ -63,6 +63,22 @@ function createHookBase(obj) {
     obj.add(mesh);
 }
 
+function createCabin(obj) {
+    'use strict';
+    const geometry = new THREE.BoxGeometry(6, 5, 6);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0, 32, 0);
+    obj.add(mesh);
+}
+
+function createCar(obj) {
+    'use strict';
+    const geometry = new THREE.BoxGeometry(3, 2, 2);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(14, 33, 0); 
+    obj.add(mesh);
+}
+
 function createCrane(x, y, z) {
     'use strict';
     var crane = new THREE.Object3D();
@@ -75,6 +91,8 @@ function createCrane(x, y, z) {
     createCounterweight(crane);
     createCable(crane);
     createHookBase(crane);
+    createCabin(crane);
+    createCar(crane);
 
     scene.add(crane);
     crane.position.set(x, y, z);
