@@ -3,3 +3,14 @@ body {
     background-color: #fff;
     overflow: hidden;
 }
+
+.hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.5); /* Adjust the alpha value to change transparency */
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    color: #000;
+}

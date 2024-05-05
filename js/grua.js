@@ -178,22 +178,18 @@ function toggleWireframeMode() {
     });
 }
 
-function onKeyDown(e) {
-    'use strict';
-    const key = parseInt(e.key);
-    if (key >= 1 && key <= 5) {
-        if (key === 1) {
-            toggleWireframeMode();
-        }
-        activeCamera = cameras[key - 1];
-        controls.object = activeCamera;
-        controls.update();
-    }
-}
-
 function render() {
     'use strict';
     renderer.render(scene, activeCamera);
+}
+
+function updateHUD() {
+    const hudElement = document.getElementById("hud");
+    hudElement.innerHTML = "Press 1-6 to switch cameras:<br>";
+    cameras.forEach((camera, index) => {
+        hudElement.innerHTML += `${index + 1}: ${camera === activeCamera ? 'Active' : 'Inactive'}<br>`;
+    });
+    hudElement.innerHTML += `<br>Viewing Mode: ${wireframeMode ? 'Wireframe' : 'Solid'}<br>`;
 }
 
 function init() {
@@ -204,11 +200,27 @@ function init() {
 
     createScene();
     setupCameras();
+    updateHUD(); 
     render();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
 }
+
+function onKeyDown(e) {
+    'use strict';
+    const key = parseInt(e.key);
+    if (key >= 1 && key <= 5) {
+        if (key === 1) {
+            toggleWireframeMode();
+        }
+        activeCamera = cameras[key - 1];
+        controls.object = activeCamera;
+        controls.update();
+        updateHUD(); 
+    }
+}
+
 
 function animate() {
     'use strict';
@@ -218,5 +230,3 @@ function animate() {
 
 init();
 animate();
-
-
