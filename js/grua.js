@@ -13,6 +13,7 @@ function createBase(obj) {
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 1, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createTower(obj) {
@@ -21,62 +22,70 @@ function createTower(obj) {
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 20, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createBoom(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(20, 2, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(10, 34, 0);
+    mesh.position.set(10, 14, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createCounterBoom(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(10, 2, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-5, 34, 0);
+    mesh.position.set(-5, 14, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createCounterweight(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(3, 6, 8);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-7, 32, 0);
+    mesh.position.set(-7, 12, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createCable(obj) {
     'use strict';
-    const geometry = new THREE.CylinderGeometry(0.5,0.5 , 14);
+    const geometry = new THREE.CylinderGeometry(0.5, 0.5, 14);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(14, 25, 0); 
+    mesh.position.set(0, -8, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createHookBase(obj) {
     'use strict';
     const geometry = new THREE.ConeGeometry(2, 2, 4);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(14, 18, 0);
+    mesh.position.set(0, -16, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createCabin(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(6, 5, 6);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 32, 0);
+    mesh.position.set(0, 12, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createCar(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(3, 2, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(14, 33, 0); 
+    mesh.position.set(14, 13, 0);
     obj.add(mesh);
+    return mesh;
 }
 
 function createCrane(x, y, z) {
@@ -84,15 +93,15 @@ function createCrane(x, y, z) {
     var crane = new THREE.Object3D();
     material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
 
-    createBase(crane);
-    createTower(crane);
-    createBoom(crane);
-    createCounterBoom(crane);
-    createCounterweight(crane);
-    createCable(crane);
-    createHookBase(crane);
-    createCabin(crane);
-    createCar(crane);
+    const baseMesh = createBase(crane);
+    const towerMesh = createTower(baseMesh);
+    createBoom(towerMesh);
+    createCounterBoom(towerMesh);
+    createCounterweight(towerMesh);
+    createCabin(towerMesh);
+    const carMesh = createCar(towerMesh);
+    createCable(carMesh);
+    createHookBase(carMesh);
 
     scene.add(crane);
     crane.position.set(x, y, z);
@@ -117,11 +126,11 @@ function setupCameras() {
     const cameraFront = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
     cameraFront.position.set(100, 20, 0);
     cameras.push(cameraFront);
-    
+
     const cameraSide = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
     cameraSide.position.set(0, 20, 107);
     cameras.push(cameraSide);
-    
+
     const cameraTop = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
     cameraTop.position.set(0, 100, 0);
     cameraTop.lookAt(0, 0, 0);
@@ -134,7 +143,7 @@ function setupCameras() {
     cameras.push(cameraPerspective);
 
     // Orthographic camera
-    const cameraOrthographic = new THREE.OrthographicCamera(window.innerWidth / - 8, window.innerWidth / 8, window.innerHeight / 8, window.innerHeight / - 8, 1, 1000);    
+    const cameraOrthographic = new THREE.OrthographicCamera(window.innerWidth / - 8, window.innerWidth / 8, window.innerHeight / 8, window.innerHeight / - 8, 1, 1000);
     cameraOrthographic.position.set(50, 50, 50);
     cameraOrthographic.lookAt(0, 0, 0);
     cameras.push(cameraOrthographic);
@@ -200,7 +209,7 @@ function init() {
 
     createScene();
     setupCameras();
-    updateHUD(); 
+    updateHUD();
     render();
 
     window.addEventListener("keydown", onKeyDown);
@@ -217,7 +226,7 @@ function onKeyDown(e) {
         activeCamera = cameras[key - 1];
         controls.object = activeCamera;
         controls.update();
-        updateHUD(); 
+        updateHUD();
     }
 }
 
