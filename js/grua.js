@@ -265,17 +265,12 @@ function onKeyDown(e) {
             hook.position.y = delta2;
             cable.scale.y = Math.max(cable.scale.y - speed/20, 0.4);
             cable.position.y = Math.min(cable.position.y + speed/1.5, 0.14);
-            console.log("cable size y: " + cable.scale.y);
-            console.log("cable position y: " + cable.position.y);
             break;
         case 'd':
             delta2 -= speed;
             hook.position.y = delta2;
             cable.scale.y = Math.min(cable.scale.y + speed/20, 1);
             cable.position.y = Math.max(cable.position.y - speed/1.5, -8);
-
-            console.log("cable size y: " + cable.scale.y);
-            console.log("cable position y: " + cable.position.y);
             break;
         case 'r':
             theta2 += speed;
