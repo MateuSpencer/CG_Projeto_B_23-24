@@ -1,128 +1,107 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js';
 
+'use strict';
+const scene = new THREE.Scene();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+const cameras = [];
+const referencials = [];
+const objects = [];
+const identityVector = vector(1, 1, 1), zeroVector = vector(0, 0, 0);
 
-var scene, renderer, controls;
-var material, mesh;
-var cameras = [];
-var activeCamera;
-var theta1 = 0, delta1 = 0, delta2 = 0, theta2 = 0;
-var speed = 0.1;
-var crane, boom, boomGroup, car, cable, hook;
+let activeCamera, controls;
+let wireframeMode = false;
+let theta1 = 0, delta1 = 0, delta2 = 0, theta2 = 0;
+let speed = 0.5;
+let boomGroup, car, cable, clawBase;
+let cableInitialYScale;
 
-function createBase(obj) {
+function vector(x, y, z) {
     'use strict';
-    const geometry = new THREE.BoxGeometry(10, 3, 10);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 1, 0);
-    obj.add(mesh);
+    return [x, y, z];
+}
+
+function createObject(parent, geometry, material, position, scale, rotation) {
+    'use strict';
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.set(scale[0], scale[1], scale[2]);
+    mesh.rotation.set(rotation[0], rotation[1], rotation[2]);
+    mesh.position.set(position[0], position[1], position[2]);
+    parent.add(mesh);
+    objects.push(mesh);
     return mesh;
 }
 
-function createTower(obj) {
+function createReferencial(parent, position, scale, rotation) {
     'use strict';
-    const geometry = new THREE.BoxGeometry(2, 40, 2);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 20, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createBoom(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(20, 2, 2);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(10, 34, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createCounterBoom(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(10, 2, 2);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-15, 0, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createCounterweight(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(3, 6, 8);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-17, -2, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createCabin(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(6, 5, 6);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-10, -4, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createCar(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(3, 2, 2);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, -2, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createCable(obj) {
-    'use strict';
-    const geometry = new THREE.CylinderGeometry(0.5, 0.5, 14);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, -8, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createHookBase(obj) {
-    'use strict';
-    const geometry = new THREE.ConeGeometry(2, 2, 4);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, -15, 0);
-    obj.add(mesh);
-    delta2 = mesh.position.y;
-    return mesh;
+    const ref = new THREE.Object3D();
+    ref.scale.set(scale[0], scale[1], scale[2]);
+    ref.rotation.set(rotation[0], rotation[1], rotation[2]);
+    ref.position.set(position[0], position[1], position[2]);
+    parent.add(ref);
+    referencials.push(ref);
+    return ref;
 }
 
 function createCrane(x, y, z) {
     'use strict';
-    crane = new THREE.Object3D();
-    material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1);
+    const coneGeometry = new THREE.ConeGeometry(2, 2, 10);
+    const material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
 
-    crane = createBase(crane);
-    createTower(crane);
+    const craneReferencial = createReferencial(scene, vector(x, y, z), identityVector, zeroVector);
 
-    boomGroup = new THREE.Group();
-    crane.add(boomGroup);
+    // base
+    createObject(craneReferencial, boxGeometry, material, zeroVector, vector(10, 3, 8), zeroVector);
+    // tower
+    createObject(craneReferencial, boxGeometry, material, vector(0, 16.5, 0), vector(2, 30, 2), zeroVector);
 
-    boom = createBoom(boomGroup);
-    createCounterBoom(boom);
-    createCounterweight(boom);
-    createCabin(boom);
-    car = createCar(boom);
-    cable = createCable(car);
-    hook = createHookBase(car);
+    boomGroup = createReferencial(craneReferencial, vector(0, 31.5, 0), identityVector, zeroVector);
 
-    scene.add(crane);
-    crane.position.set(x, y, z);
-    return crane;
+    // boom
+    createObject(boomGroup, boxGeometry, material, vector(5, 0, 0), vector(34, 2, 2), zeroVector);
+    // cabin
+    createObject(boomGroup, boxGeometry, material, vector(0, -5.5, -0.5), vector(4, 3, 5), zeroVector);
+    // counterweight
+    createObject(boomGroup, boxGeometry, material, vector(-7.5, -2, -1), vector(3, 6, 8), zeroVector);
+    // tower peak
+    createObject(boomGroup, boxGeometry, material, vector(0, 4, 0), vector(2, 6, 2), zeroVector);
+    // fore pendant
+    createObject(boomGroup, cylinderGeometry, material, vector(11, 4, 0), vector(0.1, 21.8, 0.1), vector(0, 0, 1.292));
+    // rear pendant
+    createObject(boomGroup, cylinderGeometry, material, vector(-6, 4, 0), vector(0.1, 12.5, 0.1), vector(0, 0, -1.05));
+
+    car = createReferencial(boomGroup, vector(10, -1, 0), identityVector, zeroVector);
+
+    // car
+    createObject(car, boxGeometry, material, zeroVector, vector(3, 1, 2), zeroVector);
+    cable = createObject(car, cylinderGeometry, material, vector(0, -7.5, 0), vector(0.5, 14, 0.5), zeroVector);
+    cableInitialYScale = cable.scale.y;
+
+    clawBase = createReferencial(car, vector(0, -15, 0), identityVector, zeroVector);
+    delta2 = clawBase.position.y;
+
+    // claw base
+    createObject(clawBase, coneGeometry, material, zeroVector, identityVector, zeroVector);
+
+    const clawReferencial = createReferencial(clawBase, zeroVector, identityVector, zeroVector);
+
+    // claw 1 through 4
+    createObject(clawReferencial, boxGeometry, material, vector(1.5, -2.15, 0), vector(0.5, 2.5, 0.5), zeroVector);
+    createObject(clawReferencial, boxGeometry, material, vector(-1.5, -2.15, 0), vector(0.5, 2.5, 0.5), zeroVector);
+    createObject(clawReferencial, boxGeometry, material, vector(0, -2.15, 1.5), vector(0.5, 2.5, 0.5), zeroVector);
+    createObject(clawReferencial, boxGeometry, material, vector(0, -2.15, -1.5), vector(0.5, 2.5, 0.5), zeroVector);
+
+    return craneReferencial;
 }
 
 function createScene() {
     'use strict';
-    scene = new THREE.Scene();
     scene.background = new THREE.Color(0xadd8e6);
     scene.add(new THREE.AxesHelper(20));
 
-    var light = new THREE.AmbientLight(0xffffff, 1);
+    let light = new THREE.AmbientLight(0xffffff, 1);
     scene.add(light);
 
     createCrane(0, 0, 0).name = "Crane";
@@ -183,8 +162,6 @@ function onResize() {
     });
 }
 
-var wireframeMode = false;
-
 function toggleWireframeMode() {
     'use strict';
     wireframeMode = !wireframeMode;
@@ -201,6 +178,7 @@ function render() {
 }
 
 function updateHUD() {
+    'use strict';
     const hudElement = document.getElementById("hud");
     hudElement.innerHTML = "Press 1-6 to switch cameras:<br>";
     cameras.forEach((camera, index) => {
@@ -217,7 +195,6 @@ function updateHUD() {
 
 function init() {
     'use strict';
-    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
@@ -262,15 +239,15 @@ function onKeyDown(e) {
             break;
         case 'e':
             delta2 += speed;
-            hook.position.y = delta2;
-            cable.scale.y = Math.max(cable.scale.y - speed/20, 0.4);
-            cable.position.y = Math.min(cable.position.y + speed/1.5, 0.14);
+            clawBase.position.y = delta2;
+            cable.scale.y = Math.max(cable.scale.y - speed , 0.4);
+            cable.position.y = Math.min(cable.position.y + speed / 1.5, 0.14);
             break;
         case 'd':
             delta2 -= speed;
-            hook.position.y = delta2;
-            cable.scale.y = Math.min(cable.scale.y + speed/20, 1);
-            cable.position.y = Math.max(cable.position.y - speed/1.5, -8);
+            clawBase.position.y = delta2;
+            cable.scale.y = Math.min(cable.scale.y + speed , cableInitialYScale);
+            cable.position.y = Math.max(cable.position.y - speed / 1.5, -8);
             break;
         case 'r':
             theta2 += speed;
@@ -291,4 +268,4 @@ function animate() {
 }
 
 init();
-animate();
+requestAnimationFrame(animate);
