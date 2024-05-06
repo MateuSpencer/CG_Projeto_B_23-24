@@ -6,6 +6,9 @@ var scene, renderer, controls;
 var material, mesh;
 var cameras = [];
 var activeCamera;
+var theta1 = 0, delta1 = 0, delta2 = 0, theta2 = 0;
+var speed = 0.1;
+var crane, boom, car, hook;
 
 function createBase(obj) {
     'use strict';
@@ -29,7 +32,7 @@ function createBoom(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(20, 2, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(10, 14, 0);
+    mesh.position.set(10, 34, 0);
     obj.add(mesh);
     return mesh;
 }
@@ -38,7 +41,7 @@ function createCounterBoom(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(10, 2, 2);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-5, 14, 0);
+    mesh.position.set(-15, 0, 0);
     obj.add(mesh);
     return mesh;
 }
@@ -47,7 +50,25 @@ function createCounterweight(obj) {
     'use strict';
     const geometry = new THREE.BoxGeometry(3, 6, 8);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-7, 12, 0);
+    mesh.position.set(-17, -2, 0);
+    obj.add(mesh);
+    return mesh;
+}
+
+function createCabin(obj) {
+    'use strict';
+    const geometry = new THREE.BoxGeometry(6, 5, 6);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(-10, -4, 0);
+    obj.add(mesh);
+    return mesh;
+}
+
+function createCar(obj) {
+    'use strict';
+    const geometry = new THREE.BoxGeometry(3, 2, 2);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0, -2, 0);
     obj.add(mesh);
     return mesh;
 }
@@ -70,38 +91,20 @@ function createHookBase(obj) {
     return mesh;
 }
 
-function createCabin(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(6, 5, 6);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 12, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
-function createCar(obj) {
-    'use strict';
-    const geometry = new THREE.BoxGeometry(3, 2, 2);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(14, 13, 0);
-    obj.add(mesh);
-    return mesh;
-}
-
 function createCrane(x, y, z) {
     'use strict';
-    var crane = new THREE.Object3D();
+    crane = new THREE.Object3D();
     material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
 
-    const baseMesh = createBase(crane);
-    const towerMesh = createTower(baseMesh);
-    createBoom(towerMesh);
-    createCounterBoom(towerMesh);
-    createCounterweight(towerMesh);
-    createCabin(towerMesh);
-    const carMesh = createCar(towerMesh);
-    createCable(carMesh);
-    createHookBase(carMesh);
+    crane = createBase(crane);
+    createTower(crane);
+    boom = createBoom(crane);
+    createCounterBoom(boom);
+    createCounterweight(boom);
+    createCabin(boom);
+    car = createCar(boom);
+    createCable(car);
+    hook = createHookBase(car);
 
     scene.add(crane);
     crane.position.set(x, y, z);
@@ -228,8 +231,46 @@ function onKeyDown(e) {
         controls.update();
         updateHUD();
     }
-}
+    switch (e.key.toLowerCase()) {
+        case 'q':
+            theta1 += speed;
+            boom.rotation.y = theta1;
+            break;
+        case 'a':
+            theta1 -= speed;
+            boom.rotation.y = theta1;
+            break;
+        case 'w':
+            delta1 += speed;
+            car.position.x = delta1;
+            break;
+        case 's':
+            delta1 -= speed;
+            car.position.x = delta1;
+            break;
+        case 'e':
+            delta2 += speed;
+            hook.position.y = delta2;
+            // TODO: alterar tamnho e altura do cabo
+            break;
+        case 'd':
+            delta2 -= speed;
+            hook.position.y = delta2;
+            // TODO: alterar tamnho e altura do cabo
+            break;
+        case 'r':
+            theta2 += speed;
+            break;
+        case 'f':
+            theta2 -= speed;
+            break;
+    }
 
+    theta1 = Math.max(Math.min(theta1, Math.PI), -Math.PI);
+    delta1 = Math.max(Math.min(delta1, 10), 0);
+    delta2 = Math.min(Math.min(delta2, -5), -10);
+    theta2 = Math.max(Math.min(theta2, 1), -1);
+}
 
 function animate() {
     'use strict';
