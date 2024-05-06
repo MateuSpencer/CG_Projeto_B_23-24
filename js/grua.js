@@ -7,8 +7,8 @@ var material, mesh;
 var cameras = [];
 var activeCamera;
 var theta1 = 0, delta1 = 0, delta2 = 0, theta2 = 0;
-var speed = 0.1;
-var crane, boom, car, hook;
+var speed = 0.5;
+var crane, boom, boomGroup, car, hook;
 
 function createBase(obj) {
     'use strict';
@@ -88,6 +88,7 @@ function createHookBase(obj) {
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, -16, 0);
     obj.add(mesh);
+    delta2 = mesh.position.y;
     return mesh;
 }
 
@@ -98,7 +99,11 @@ function createCrane(x, y, z) {
 
     crane = createBase(crane);
     createTower(crane);
-    boom = createBoom(crane);
+
+    boomGroup = new THREE.Group();
+    crane.add(boomGroup);
+
+    boom = createBoom(boomGroup);
     createCounterBoom(boom);
     createCounterweight(boom);
     createCabin(boom);
@@ -202,6 +207,12 @@ function updateHUD() {
         hudElement.innerHTML += `${index + 1}: ${camera === activeCamera ? 'Active' : 'Inactive'}<br>`;
     });
     hudElement.innerHTML += `<br>Viewing Mode: ${wireframeMode ? 'Wireframe' : 'Solid'}<br>`;
+
+    hudElement.innerHTML += `<br>Crane Controls:<br>`;
+    hudElement.innerHTML += `Q/A: Rotate upper section<br>`;
+    hudElement.innerHTML += `W/S: Move trolley<br>`;
+    hudElement.innerHTML += `E/D: Move hook block and claw<br>`;
+    hudElement.innerHTML += `R/F: Open/close gripper<br>`;
 }
 
 function init() {
@@ -234,11 +245,11 @@ function onKeyDown(e) {
     switch (e.key.toLowerCase()) {
         case 'q':
             theta1 += speed;
-            boom.rotation.y = theta1;
+            boomGroup.rotation.y = theta1;
             break;
         case 'a':
             theta1 -= speed;
-            boom.rotation.y = theta1;
+            boomGroup.rotation.y = theta1;
             break;
         case 'w':
             delta1 += speed;
@@ -266,10 +277,8 @@ function onKeyDown(e) {
             break;
     }
 
-    theta1 = Math.max(Math.min(theta1, Math.PI), -Math.PI);
-    delta1 = Math.max(Math.min(delta1, 10), 0);
-    delta2 = Math.min(Math.min(delta2, -5), -10);
-    theta2 = Math.max(Math.min(theta2, 1), -1);
+    delta1 = Math.max(Math.min(delta1, 8), 0);
+    delta2 = Math.max(Math.min(delta2, -2), -14);
 }
 
 function animate() {
