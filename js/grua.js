@@ -7,8 +7,8 @@ var material, mesh;
 var cameras = [];
 var activeCamera;
 var theta1 = 0, delta1 = 0, delta2 = 0, theta2 = 0;
-var speed = 0.5;
-var crane, boom, boomGroup, car, hook;
+var speed = 0.1;
+var crane, boom, boomGroup, car, cable, hook;
 
 function createBase(obj) {
     'use strict';
@@ -86,7 +86,7 @@ function createHookBase(obj) {
     'use strict';
     const geometry = new THREE.ConeGeometry(2, 2, 4);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, -16, 0);
+    mesh.position.set(0, -15, 0);
     obj.add(mesh);
     delta2 = mesh.position.y;
     return mesh;
@@ -108,7 +108,7 @@ function createCrane(x, y, z) {
     createCounterweight(boom);
     createCabin(boom);
     car = createCar(boom);
-    createCable(car);
+    cable = createCable(car);
     hook = createHookBase(car);
 
     scene.add(crane);
@@ -258,16 +258,24 @@ function onKeyDown(e) {
         case 's':
             delta1 -= speed;
             car.position.x = delta1;
+            console.log("cable size y: " + cable.scale.y);
             break;
         case 'e':
             delta2 += speed;
             hook.position.y = delta2;
-            // TODO: alterar tamnho e altura do cabo
+            cable.scale.y = Math.max(cable.scale.y - speed/20, 0.4);
+            cable.position.y = Math.min(cable.position.y + speed/1.5, 0.14);
+            console.log("cable size y: " + cable.scale.y);
+            console.log("cable position y: " + cable.position.y);
             break;
         case 'd':
             delta2 -= speed;
             hook.position.y = delta2;
-            // TODO: alterar tamnho e altura do cabo
+            cable.scale.y = Math.min(cable.scale.y + speed/20, 1);
+            cable.position.y = Math.max(cable.position.y - speed/1.5, -8);
+
+            console.log("cable size y: " + cable.scale.y);
+            console.log("cable position y: " + cable.position.y);
             break;
         case 'r':
             theta2 += speed;
