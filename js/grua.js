@@ -215,10 +215,10 @@ function closeClaw() {
 }
 
 function openClaw() {
-    claw1.rotation.z = Math.min(claw1.rotation.z + clawSpeed, 0);
-    claw2.rotation.z = Math.max(claw2.rotation.z - clawSpeed, 0);
-    claw3.rotation.x = Math.max(claw3.rotation.x - clawSpeed, 0);
-    claw4.rotation.x = Math.min(claw4.rotation.x + clawSpeed, 0);
+    claw1.rotation.z = Math.min(claw1.rotation.z + clawSpeed, minClawAngle);
+    claw2.rotation.z = Math.max(claw2.rotation.z - clawSpeed, -minClawAngle);
+    claw3.rotation.x = Math.max(claw3.rotation.x - clawSpeed, -minClawAngle);
+    claw4.rotation.x = Math.min(claw4.rotation.x + clawSpeed, minClawAngle);
 }
 
 function onKeyDown(e) {
