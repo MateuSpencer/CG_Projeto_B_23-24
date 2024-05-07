@@ -46,7 +46,7 @@ function createCrane(x, y, z) {
 
     // base
     createObject(craneReferencial, boxGeometry, material, zeroVector, [10, 3, 8], zeroVector);
-    const tower = createObject(craneReferencial, boxGeometry, material, [0, 16.5, 0], [2, 30, 2], zeroVector);
+    createObject(craneReferencial, boxGeometry, material, [0, 16.5, 0], [2, 30, 2], zeroVector);
 
     boomGroup = createReferencial(craneReferencial, [0, 31.5, 0], identityVector, zeroVector);
 
@@ -75,8 +75,6 @@ function createCrane(x, y, z) {
     clawBase = createReferencial(car, [0, -15, 0], identityVector, zeroVector);
     clawMinY = -(cable.scale.y + coneGeometry.parameters.height / 2);
     clawMaxY = - (clawCar.scale.y + coneGeometry.parameters.height) / 2;
-    console.log(clawMinY, clawMaxY);
-    console.log(coneGeometry);
 
     // claw base
     createObject(clawBase, coneGeometry, material, zeroVector, identityVector, zeroVector);
