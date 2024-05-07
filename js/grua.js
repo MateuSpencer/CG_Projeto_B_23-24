@@ -12,7 +12,7 @@ let wireframeMode = false;
 let boomGroup, boomRotationSpeed = 0.3;
 let car, carMaxX, carMinX, carSpeed = 0.5;
 let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.2;
-let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, clawSpeed = 0.1;
+let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, minClawAngle = 0.8, clawSpeed = 0.1;
 let cableInitialYScale;
 
 function createObject(parent, geometry, material, position, scale, rotation) {
@@ -215,10 +215,10 @@ function closeClaw() {
 }
 
 function openClaw() {
-            claw1.rotation.z = Math.min(claw1.rotation.z + clawSpeed, 0);
-            claw2.rotation.z = Math.max(claw2.rotation.z - clawSpeed, 0);
-            claw3.rotation.x = Math.max(claw3.rotation.x - clawSpeed, 0);
-            claw4.rotation.x = Math.min(claw4.rotation.x + clawSpeed, 0);
+            claw1.rotation.z = Math.min(claw1.rotation.z + clawSpeed, minClawAngle );
+            claw2.rotation.z = Math.max(claw2.rotation.z - clawSpeed, -minClawAngle );
+            claw3.rotation.x = Math.max(claw3.rotation.x - clawSpeed, -minClawAngle );
+            claw4.rotation.x = Math.min(claw4.rotation.x + clawSpeed, minClawAngle );
 }
 
 function onKeyDown(e) {
