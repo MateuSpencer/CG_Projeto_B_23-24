@@ -9,10 +9,10 @@ const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
 
 let activeCamera, controls;
 let wireframeMode = false;
-let speed = 0.5;
 let boomGroup, boomRotationSpeed = 0.3;
 let car, carMaxX, carMinX, carSpeed = 0.5;
 let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.2;
+let claw1, claw2, claw3, claw4, clawSpeed = 0.1;
 let cableInitialYScale;
 
 function createObject(parent, geometry, material, position, scale, rotation) {
@@ -81,11 +81,17 @@ function createCrane(x, y, z) {
 
     const clawReferencial = createReferencial(clawBase, zeroVector, identityVector, zeroVector);
 
-    // claw 1 through 4
-    createObject(clawReferencial, boxGeometry, material, [1.5, -2.15, 0], [0.5, 2.5, 0.5], zeroVector);
-    createObject(clawReferencial, boxGeometry, material, [-1.5, -2.15, 0], [0.5, 2.5, 0.5], zeroVector);
-    createObject(clawReferencial, boxGeometry, material, [0, -2.15, 1.5], [0.5, 2.5, 0.5], zeroVector);
-    createObject(clawReferencial, boxGeometry, material, [0, -2.15, -1.5], [0.5, 2.5, 0.5], zeroVector);
+    const clawsY = - coneGeometry.parameters.height / 2;
+
+    claw1 = createReferencial(clawReferencial, [1.5, clawsY, 0], identityVector, zeroVector);
+    claw2 = createReferencial(clawReferencial, [-1.5, clawsY, 0], identityVector, zeroVector);
+    claw3 = createReferencial(clawReferencial, [0, clawsY, 1.5], identityVector, zeroVector);
+    claw4 = createReferencial(clawReferencial, [0, clawsY, -1.5], identityVector, zeroVector);
+
+    createObject(claw1, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
+    createObject(claw2, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
+    createObject(claw3, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
+    createObject(claw4, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
 
     return craneReferencial;
 }
@@ -229,18 +235,25 @@ function onKeyDown(e) {
         case 'e':
             clawBase.position.y = Math.min(clawBase.position.y + clawBaseSpeed, clawMaxY);
             cable.scale.y = clawBase.position.y;
-            cable.position.y = cable.scale.y/2;
+            cable.position.y = cable.scale.y / 2;
             break;
         case 'd':
             clawBase.position.y = Math.max(clawBase.position.y - clawBaseSpeed, clawMinY);
             cable.scale.y = clawBase.position.y;
-            cable.position.y = cable.scale.y/2;
+            cable.position.y = cable.scale.y / 2;
             break;
         case 'r':
-            theta2 += speed;
+            claw1.rotation.z += clawSpeed;
+            claw2.rotation.z -= clawSpeed;
+            claw3.rotation.x -= clawSpeed;
+            claw4.rotation.x += clawSpeed;
+
             break;
         case 'f':
-            theta2 -= speed;
+            claw1.rotation.z -= clawSpeed;
+            claw2.rotation.z += clawSpeed;
+            claw3.rotation.x += clawSpeed;
+            claw4.rotation.x -= clawSpeed;
             break;
     }
 }
