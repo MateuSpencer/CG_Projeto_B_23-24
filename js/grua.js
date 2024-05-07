@@ -5,19 +5,15 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const cameras = [];
-const identityVector = vector(1, 1, 1), zeroVector = vector(0, 0, 0);
+const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
 
 let activeCamera, controls;
 let wireframeMode = false;
-let theta1 = 0, delta1 = 0, delta2 = 0, theta2 = 0;
 let speed = 0.5;
-let boomGroup, car, cable, clawBase;
+let boomGroup, boomRotationSpeed = 0.3;
+let car, carMaxX, carMinX, carSpeed = 0.5;
+let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.2;
 let cableInitialYScale;
-
-function vector(x, y, z) {
-    'use strict';
-    return [x, y, z];
-}
 
 function createObject(parent, geometry, material, position, scale, rotation) {
     'use strict';
@@ -46,37 +42,41 @@ function createCrane(x, y, z) {
     const coneGeometry = new THREE.ConeGeometry(2, 2, 10);
     const material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
 
-    const craneReferencial = createReferencial(scene, vector(x, y, z), identityVector, zeroVector);
+    const craneReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
 
     // base
-    createObject(craneReferencial, boxGeometry, material, zeroVector, vector(10, 3, 8), zeroVector);
-    // tower
-    createObject(craneReferencial, boxGeometry, material, vector(0, 16.5, 0), vector(2, 30, 2), zeroVector);
+    createObject(craneReferencial, boxGeometry, material, zeroVector, [10, 3, 8], zeroVector);
+    const tower = createObject(craneReferencial, boxGeometry, material, [0, 16.5, 0], [2, 30, 2], zeroVector);
 
-    boomGroup = createReferencial(craneReferencial, vector(0, 31.5, 0), identityVector, zeroVector);
+    boomGroup = createReferencial(craneReferencial, [0, 31.5, 0], identityVector, zeroVector);
 
     // boom
-    createObject(boomGroup, boxGeometry, material, vector(5, 0, 0), vector(34, 2, 2), zeroVector);
+    const boom = createObject(boomGroup, boxGeometry, material, [5, 0, 0], [34, 2, 2], zeroVector);
     // cabin
-    createObject(boomGroup, boxGeometry, material, vector(0, -5.5, -0.5), vector(4, 3, 5), zeroVector);
+    createObject(boomGroup, boxGeometry, material, [0, -5.5, -0.5], [4, 3, 5], zeroVector);
     // counterweight
-    createObject(boomGroup, boxGeometry, material, vector(-7.5, -2, -1), vector(3, 6, 8), zeroVector);
+    createObject(boomGroup, boxGeometry, material, [-7.5, -2, -1], [3, 6, 8], zeroVector);
     // tower peak
-    createObject(boomGroup, boxGeometry, material, vector(0, 4, 0), vector(2, 6, 2), zeroVector);
+    createObject(boomGroup, boxGeometry, material, [0, 4, 0], [2, 6, 2], zeroVector);
     // fore pendant
-    createObject(boomGroup, cylinderGeometry, material, vector(11, 4, 0), vector(0.1, 21.8, 0.1), vector(0, 0, 1.292));
+    createObject(boomGroup, cylinderGeometry, material, [11, 4, 0], [0.1, 21.8, 0.1], [0, 0, 1.292]);
     // rear pendant
-    createObject(boomGroup, cylinderGeometry, material, vector(-6, 4, 0), vector(0.1, 12.5, 0.1), vector(0, 0, -1.05));
+    createObject(boomGroup, cylinderGeometry, material, [-6, 4, 0], [0.1, 12.5, 0.1], [0, 0, -1.05]);
 
-    car = createReferencial(boomGroup, vector(10, -1, 0), identityVector, zeroVector);
+    car = createReferencial(boomGroup, [10, -1, 0], identityVector, zeroVector);
 
-    // car
-    createObject(car, boxGeometry, material, zeroVector, vector(3, 1, 2), zeroVector);
-    cable = createObject(car, cylinderGeometry, material, vector(0, -7.5, 0), vector(0.5, 14, 0.5), zeroVector);
+    const clawCar = createObject(car, boxGeometry, material, zeroVector, [3, 1, 2], zeroVector);
+    carMaxX = boom.position.x + (boom.scale.x / 2) - clawCar.scale.x / 2;
+    carMinX = boom.position.x;
+
+    cable = createObject(car, cylinderGeometry, material, [0, -7.5, 0], [0.5, 14, 0.5], zeroVector);
     cableInitialYScale = cable.scale.y;
 
-    clawBase = createReferencial(car, vector(0, -15, 0), identityVector, zeroVector);
-    delta2 = clawBase.position.y;
+    clawBase = createReferencial(car, [0, -15, 0], identityVector, zeroVector);
+    clawMinY = -(cable.scale.y + coneGeometry.parameters.height / 2);
+    clawMaxY = - (clawCar.scale.y + coneGeometry.parameters.height) / 2;
+    console.log(clawMinY, clawMaxY);
+    console.log(coneGeometry);
 
     // claw base
     createObject(clawBase, coneGeometry, material, zeroVector, identityVector, zeroVector);
@@ -84,10 +84,10 @@ function createCrane(x, y, z) {
     const clawReferencial = createReferencial(clawBase, zeroVector, identityVector, zeroVector);
 
     // claw 1 through 4
-    createObject(clawReferencial, boxGeometry, material, vector(1.5, -2.15, 0), vector(0.5, 2.5, 0.5), zeroVector);
-    createObject(clawReferencial, boxGeometry, material, vector(-1.5, -2.15, 0), vector(0.5, 2.5, 0.5), zeroVector);
-    createObject(clawReferencial, boxGeometry, material, vector(0, -2.15, 1.5), vector(0.5, 2.5, 0.5), zeroVector);
-    createObject(clawReferencial, boxGeometry, material, vector(0, -2.15, -1.5), vector(0.5, 2.5, 0.5), zeroVector);
+    createObject(clawReferencial, boxGeometry, material, [1.5, -2.15, 0], [0.5, 2.5, 0.5], zeroVector);
+    createObject(clawReferencial, boxGeometry, material, [-1.5, -2.15, 0], [0.5, 2.5, 0.5], zeroVector);
+    createObject(clawReferencial, boxGeometry, material, [0, -2.15, 1.5], [0.5, 2.5, 0.5], zeroVector);
+    createObject(clawReferencial, boxGeometry, material, [0, -2.15, -1.5], [0.5, 2.5, 0.5], zeroVector);
 
     return craneReferencial;
 }
@@ -206,7 +206,7 @@ function init() {
 function onKeyDown(e) {
     'use strict';
     const key = parseInt(e.key);
-    if (key >= 1 && key <= 5) {
+    if (key >= 1 && key <= 6) {
         if (key === 1) {
             toggleWireframeMode();
         }
@@ -217,33 +217,26 @@ function onKeyDown(e) {
     }
     switch (e.key.toLowerCase()) {
         case 'q':
-            theta1 += speed;
-            boomGroup.rotation.y = theta1;
+            boomGroup.rotation.y += boomRotationSpeed;
             break;
         case 'a':
-            theta1 -= speed;
-            boomGroup.rotation.y = theta1;
+            boomGroup.rotation.y -= boomRotationSpeed;
             break;
         case 'w':
-            delta1 += speed;
-            car.position.x = delta1;
+            car.position.x = Math.min(car.position.x + carSpeed, carMaxX);
             break;
         case 's':
-            delta1 -= speed;
-            car.position.x = delta1;
-            console.log("cable size y: " + cable.scale.y);
+            car.position.x = Math.max(car.position.x - carSpeed, carMinX);
             break;
         case 'e':
-            delta2 += speed;
-            clawBase.position.y = delta2;
-            cable.scale.y = Math.max(cable.scale.y - speed , 0.4);
-            cable.position.y = Math.min(cable.position.y + speed / 1.5, 0.14);
+            clawBase.position.y = Math.min(clawBase.position.y + clawBaseSpeed, clawMaxY);
+            cable.scale.y = clawBase.position.y;
+            cable.position.y = cable.scale.y/2;
             break;
         case 'd':
-            delta2 -= speed;
-            clawBase.position.y = delta2;
-            cable.scale.y = Math.min(cable.scale.y + speed , cableInitialYScale);
-            cable.position.y = Math.max(cable.position.y - speed / 1.5, -8);
+            clawBase.position.y = Math.max(clawBase.position.y - clawBaseSpeed, clawMinY);
+            cable.scale.y = clawBase.position.y;
+            cable.position.y = cable.scale.y/2;
             break;
         case 'r':
             theta2 += speed;
@@ -252,9 +245,6 @@ function onKeyDown(e) {
             theta2 -= speed;
             break;
     }
-
-    delta1 = Math.max(Math.min(delta1, 8), 0);
-    delta2 = Math.max(Math.min(delta2, -2), -14);
 }
 
 function animate() {
