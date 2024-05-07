@@ -5,8 +5,6 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const cameras = [];
-const referencials = [];
-const objects = [];
 const identityVector = vector(1, 1, 1), zeroVector = vector(0, 0, 0);
 
 let activeCamera, controls;
@@ -28,7 +26,6 @@ function createObject(parent, geometry, material, position, scale, rotation) {
     mesh.rotation.set(rotation[0], rotation[1], rotation[2]);
     mesh.position.set(position[0], position[1], position[2]);
     parent.add(mesh);
-    objects.push(mesh);
     return mesh;
 }
 
@@ -39,7 +36,6 @@ function createReferencial(parent, position, scale, rotation) {
     ref.rotation.set(rotation[0], rotation[1], rotation[2]);
     ref.position.set(position[0], position[1], position[2]);
     parent.add(ref);
-    referencials.push(ref);
     return ref;
 }
 
