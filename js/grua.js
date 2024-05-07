@@ -46,6 +46,7 @@ function createCrane(x, y, z) {
 
     // base
     createObject(craneReferencial, boxGeometry, material, zeroVector, [10, 3, 8], zeroVector);
+    // tower
     createObject(craneReferencial, boxGeometry, material, [0, 16.5, 0], [2, 30, 2], zeroVector);
 
     boomGroup = createReferencial(craneReferencial, [0, 31.5, 0], identityVector, zeroVector);
@@ -110,12 +111,12 @@ function createScene() {
 function setupCameras() {
     const aspectRatio = window.innerWidth / window.innerHeight;
 
-    const cameraFront = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
-    cameraFront.position.set(100, 20, 0);
+    const cameraFront = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, (window.innerHeight / 8) * (2 / 3), - (window.innerHeight / 8) * (1 / 3), 0.1, 1000);
+    cameraFront.position.set(100, 0, 0);
     cameras.push(cameraFront);
 
-    const cameraSide = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
-    cameraSide.position.set(0, 20, 107);
+    const cameraSide = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, (window.innerHeight / 8) * (2 / 3), -(window.innerHeight / 8) * (1 / 3), 0.1, 1000);
+    cameraSide.position.set(0, 0, 10);
     cameras.push(cameraSide);
 
     const cameraTop = new THREE.OrthographicCamera(window.innerWidth / - 16, window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / - 16, 0.1, 1000);
@@ -123,23 +124,22 @@ function setupCameras() {
     cameraTop.lookAt(0, 0, 0);
     cameras.push(cameraTop);
 
-    // Perspective camera
-    const cameraPerspective = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
-    cameraPerspective.position.set(50, 50, 50);
-    cameraPerspective.lookAt(0, 0, 0);
-    cameras.push(cameraPerspective);
-
     // Orthographic camera
-    const cameraOrthographic = new THREE.OrthographicCamera(window.innerWidth / - 8, window.innerWidth / 8, window.innerHeight / 8, window.innerHeight / - 8, 1, 1000);
-    cameraOrthographic.position.set(50, 50, 50);
+    const cameraOrthographic = new THREE.OrthographicCamera(- window.innerWidth / 20, window.innerWidth / 20, (window.innerHeight / 10) * (2 / 3), -(window.innerHeight / 10) * (1 / 3), 1, 1000);
+    cameraOrthographic.position.set(50, 80, 100);
     cameraOrthographic.lookAt(0, 0, 0);
     cameras.push(cameraOrthographic);
 
+    // Perspective camera
+    const cameraPerspective = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+    cameraPerspective.position.set(30, 60, 60);
+    cameraPerspective.lookAt(0, 0, 0);
+    cameras.push(cameraPerspective);
+
     // Hook camera (movable)
-    const crane = scene.getObjectByName("Crane");
     const cameraHook = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
-    crane.add(cameraHook);
-    cameraHook.position.set(0, -10, 0);
+    clawBase.add(cameraHook);
+    cameraHook.lookAt(cameraHook.position.x, 0, cameraHook.position.y );
     cameras.push(cameraHook);
 
     activeCamera = cameraPerspective;
@@ -208,17 +208,17 @@ function init() {
 }
 
 function closeClaw() {
-            claw1.rotation.z = Math.max(claw1.rotation.z - clawSpeed, -maxClawAngle);
-            claw2.rotation.z = Math.min(claw2.rotation.z + clawSpeed, maxClawAngle);
-            claw3.rotation.x = Math.min(claw3.rotation.x + clawSpeed, maxClawAngle);
-            claw4.rotation.x = Math.max(claw4.rotation.x - clawSpeed, -maxClawAngle);
+    claw1.rotation.z = Math.max(claw1.rotation.z - clawSpeed, -maxClawAngle);
+    claw2.rotation.z = Math.min(claw2.rotation.z + clawSpeed, maxClawAngle);
+    claw3.rotation.x = Math.min(claw3.rotation.x + clawSpeed, maxClawAngle);
+    claw4.rotation.x = Math.max(claw4.rotation.x - clawSpeed, -maxClawAngle);
 }
 
 function openClaw() {
-            claw1.rotation.z = Math.min(claw1.rotation.z + clawSpeed, minClawAngle );
-            claw2.rotation.z = Math.max(claw2.rotation.z - clawSpeed, -minClawAngle );
-            claw3.rotation.x = Math.max(claw3.rotation.x - clawSpeed, -minClawAngle );
-            claw4.rotation.x = Math.min(claw4.rotation.x + clawSpeed, minClawAngle );
+    claw1.rotation.z = Math.min(claw1.rotation.z + clawSpeed, 0);
+    claw2.rotation.z = Math.max(claw2.rotation.z - clawSpeed, 0);
+    claw3.rotation.x = Math.max(claw3.rotation.x - clawSpeed, 0);
+    claw4.rotation.x = Math.min(claw4.rotation.x + clawSpeed, 0);
 }
 
 function onKeyDown(e) {
