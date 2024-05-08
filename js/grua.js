@@ -6,7 +6,6 @@ const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const cameras = [];
 const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
-const tetrahedronMagicRotation = [2.1933, 0.6141, -0.7780];
 
 let activeCamera, controls;
 let wireframeMode = false;
@@ -38,6 +37,7 @@ function createReferencial(parent, position, scale, rotation) {
 }
 
 function abracadabraClaws(material) {
+    const tetrahedronMagicRotation = [2.1933, 0.6141, -0.7780];
     const tetrahedron = new THREE.TetrahedronGeometry();
     const clawRef1 = createReferencial(claw1, zeroVector, identityVector, [0, 2 * Math.PI / 4, 0]);
     const clawRef2 = createReferencial(claw2, zeroVector, identityVector, [0, -2 * Math.PI / 4, 0]);
