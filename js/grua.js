@@ -9,11 +9,12 @@ const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
 
 let activeCamera, controls;
 let wireframeMode = false;
-let boomGroup, boomRotationSpeed = 0.3;
-let car, carMaxX, carMinX, carSpeed = 0.5;
-let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.2;
+let boomGroup, boomRotationSpeed = 0.05;
+let car, carMaxX, carMinX, carSpeed = 0.1;
+let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.1;
 let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, minClawAngle = 0.8, clawSpeed = 0.1;
 let cableInitialYScale;
+let keys = {};
 
 function createObject(parent, geometry, material, position, scale, rotation) {
     'use strict';
@@ -204,6 +205,7 @@ function init() {
     render();
 
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
     window.addEventListener("resize", onResize);
 }
 
@@ -233,40 +235,45 @@ function onKeyDown(e) {
         controls.update();
         updateHUD();
     }
-    switch (e.key.toLowerCase()) {
-        case 'q':
-            boomGroup.rotation.y += boomRotationSpeed;
-            break;
-        case 'a':
-            boomGroup.rotation.y -= boomRotationSpeed;
-            break;
-        case 'w':
-            car.position.x = Math.min(car.position.x + carSpeed, carMaxX);
-            break;
-        case 's':
-            car.position.x = Math.max(car.position.x - carSpeed, carMinX);
-            break;
-        case 'e':
-            clawBase.position.y = Math.min(clawBase.position.y + clawBaseSpeed, clawMaxY);
-            cable.scale.y = clawBase.position.y;
-            cable.position.y = cable.scale.y / 2;
-            break;
-        case 'd':
-            clawBase.position.y = Math.max(clawBase.position.y - clawBaseSpeed, clawMinY);
-            cable.scale.y = clawBase.position.y;
-            cable.position.y = cable.scale.y / 2;
-            break;
-        case 'r':
-            openClaw();
-            break;
-        case 'f':
-            closeClaw();
-            break;
-    }
+    keys[e.key.toLowerCase()] = true;
+}
+
+function onKeyUp(e) {
+    'use strict';
+    keys[e.key.toLowerCase()] = false;
 }
 
 function animate() {
     'use strict';
+
+    if (keys['q']) {
+        boomGroup.rotation.y += boomRotationSpeed;
+    }
+    if (keys['a']) {
+        boomGroup.rotation.y -= boomRotationSpeed;
+    }
+    if (keys['w']) {
+        car.position.x = Math.min(car.position.x + carSpeed, carMaxX);
+    }
+    if (keys['s']) {
+        car.position.x = Math.max(car.position.x - carSpeed, carMinX);
+    }
+    if (keys['e']) {
+        clawBase.position.y = Math.min(clawBase.position.y + clawBaseSpeed, clawMaxY);
+        cable.scale.y = clawBase.position.y;
+        cable.position.y = cable.scale.y / 2;
+    }
+    if (keys['d']) {
+        clawBase.position.y = Math.max(clawBase.position.y - clawBaseSpeed, clawMinY);
+        cable.scale.y = clawBase.position.y;
+        cable.position.y = cable.scale.y / 2;
+    }
+    if (keys['r']) {
+        openClaw();
+    }
+    if (keys['f']) {
+        closeClaw();
+    }
     render();
     requestAnimationFrame(animate);
 }
