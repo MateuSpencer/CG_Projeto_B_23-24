@@ -74,18 +74,20 @@ function createReferencial(parent, position, scale, rotation) {
     return ref;
 }
 
-function abracadabraClaws(material) {
+function abracadabraClaws(material, clawsLength, clawsWidth) {
     const tetrahedronMagicRotation = [2.1933, 0.6141, -0.7780];
     const tetrahedron = new THREE.TetrahedronGeometry();
-    const clawRef1 = createReferencial(claw1, zeroVector, identityVector, [0, 2 * Math.PI / 4, 0]);
-    const clawRef2 = createReferencial(claw2, zeroVector, identityVector, [0, -2 * Math.PI / 4, 0]);
-    const clawRef3 = createReferencial(claw3, zeroVector, identityVector, zeroVector);
-    const clawRef4 = createReferencial(claw4, zeroVector, identityVector, [0, 2 * Math.PI / 2, 0]);
+    const clawsY = -(clawsLength/2 + 0.);
 
-    createObject(clawRef1, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
-    createObject(clawRef2, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
-    createObject(clawRef3, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
-    createObject(clawRef4, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
+    const clawRef1 = createReferencial(claw1, [0, clawsY, 0], [clawsWidth, clawsLength, clawsWidth], [0, 2 * Math.PI / 4, 0]);
+    const clawRef2 = createReferencial(claw2, [0, clawsY, 0], [clawsWidth, clawsLength, clawsWidth], [0, -2 * Math.PI / 4, 0]);
+    const clawRef3 = createReferencial(claw3, [0, clawsY, 0], [clawsWidth, clawsLength, clawsWidth], zeroVector);
+    const clawRef4 = createReferencial(claw4, [0, clawsY, 0], [clawsWidth, clawsLength, clawsWidth], [0, 2 * Math.PI / 2, 0]);
+
+    createObject(clawRef1, tetrahedron, material, zeroVector, identityVector, tetrahedronMagicRotation);
+    createObject(clawRef2, tetrahedron, material, zeroVector, identityVector, tetrahedronMagicRotation);
+    createObject(clawRef3, tetrahedron, material, zeroVector, identityVector, tetrahedronMagicRotation);
+    createObject(clawRef4, tetrahedron, material, zeroVector, identityVector, tetrahedronMagicRotation);
 }
 
 function createCrane(x, y, z) {
@@ -95,54 +97,119 @@ function createCrane(x, y, z) {
     const coneGeometry = new THREE.ConeGeometry(2, 2, 10);
     const material = new THREE.MeshStandardMaterial({ color: 0xfffff00 });
 
+    // Base measurements
+    const baseWidth = 10;
+    const baseHeight = 3;
+    const baseDepth = 8;
+
+    // Tower measurements
+    const towerWidth = 2;
+    const towerHeight = 30;
+    const towerY = (baseHeight + towerHeight) / 2;
+
+    // Boom Group measurements
+    const boomGroupHeight = towerHeight + baseHeight / 2;
+    // boom
+    const boomLength = 34;
+    const boomWidth = 2;
+    const boomX = Math.round((boomLength / 2) / 3);
+
+    // cabin
+    const cabinWidth = 4;
+    const cabinHeight = 3;
+    const cabinDepth = 5;
+    const cabinZ = cabinDepth / 10;
+    const cabinY = -((cabinHeight + boomWidth) / 2 + 3);
+
+    // counterweight
+    const weightWidth = 3;
+    const weightHeight = 6;
+    const weightDepth = 8;
+    const weightX = -((boomLength / 2) - boomX + weightWidth) / 2;
+    const weightY = -(weightHeight - boomWidth) / 2;
+
+    // tower peak
+    const towerPeakHeight = 6;
+    const towerPeakY = (towerPeakHeight + boomWidth) / 2;
+
+    // pendants
+    const pendantsWidth = 0.1;
+    const pendantsY = (towerWidth + towerPeakHeight - pendantsWidth) / 2;
+    // fore pendant
+    const forePendantLength = Math.sqrt(Math.pow(towerPeakHeight, 2) + Math.pow(boomX + boomLength / 2 - towerWidth / 2, 2));
+    const forePendantX = (towerWidth / 2 + boomX + boomLength / 2) / 2;
+    const forePendantAngle = Math.PI / 2 - Math.asin(towerPeakHeight / forePendantLength);
+    // rear pendant
+    const rearPendantLength = Math.sqrt(Math.pow(towerPeakHeight, 2) + Math.pow(boomLength / 2 - boomX - towerWidth / 2, 2));
+    const rearPendantX = - (towerWidth / 2 + boomLength / 2 - boomX) / 2;
+    const rearPendantAngle = - (Math.PI / 2 - Math.asin(towerPeakHeight / rearPendantLength));
+
+    // car
+    const carInitialPlacement = [boomX / 2 + boomLength / 4, -towerWidth / 2, 0];
+    const carWidth = 3;
+    const carHeight = 1;
+    const carDepth = 2;
+    carMaxX = boomX + boomLength / 2 - carWidth / 2;
+    carMinX = boomX;
+
+    // cable
+    const cableWidth = 0.5;
+    const cableLength = 28;
+    const cableY = - (cableLength / 2 + carHeight / 2);
+    clawMinY = -(cableLength + coneGeometry.parameters.height / 2);
+    clawMaxY = - (carHeight + coneGeometry.parameters.height) / 2;
+
+    // claw
+    const clawBaseY = - (cableLength + coneGeometry.parameters.height / 2);
+    const clawsWidth = 0.5;
+    const clawsLength = 2;
+    const clawsRadius = 1.5;
+    const clawsY = - coneGeometry.parameters.height / 2;
+
+
     const craneReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
 
     // base
-    createObject(craneReferencial, boxGeometry, material, zeroVector, [10, 3, 8], zeroVector);
+    createObject(craneReferencial, boxGeometry, material, zeroVector, [baseWidth, baseHeight, baseDepth], zeroVector);
     // tower
-    createObject(craneReferencial, boxGeometry, material, [0, 16.5, 0], [2, 30, 2], zeroVector);
+    createObject(craneReferencial, boxGeometry, material, [0, towerY, 0], [towerWidth, towerHeight, towerWidth], zeroVector);
 
-    boomGroup = createReferencial(craneReferencial, [0, 31.5, 0], identityVector, zeroVector);
+    boomGroup = createReferencial(craneReferencial, [0, boomGroupHeight, 0], identityVector, zeroVector);
 
     // boom
-    const boom = createObject(boomGroup, boxGeometry, material, [5, 0, 0], [34, 2, 2], zeroVector);
+    createObject(boomGroup, boxGeometry, material, [boomX, 0, 0], [boomLength, boomWidth, boomWidth], zeroVector);
     // cabin
-    createObject(boomGroup, boxGeometry, material, [0, -5.5, 0.5], [4, 3, 5], zeroVector);
+    createObject(boomGroup, boxGeometry, material, [0, cabinY, cabinZ], [cabinWidth, cabinHeight, cabinDepth], zeroVector);
     // counterweight
-    createObject(boomGroup, boxGeometry, material, [-7.5, -2, 0], [3, 6, 8], zeroVector);
+    createObject(boomGroup, boxGeometry, material, [weightX, weightY, 0], [weightWidth, weightHeight, weightDepth], zeroVector);
     // tower peak
-    createObject(boomGroup, boxGeometry, material, [0, 4, 0], [2, 6, 2], zeroVector);
+    createObject(boomGroup, boxGeometry, material, [0, towerPeakY, 0], [towerWidth, towerPeakHeight, towerWidth], zeroVector);
     // fore pendant
-    createObject(boomGroup, cylinderGeometry, material, [11, 4, 0], [0.1, 21.8, 0.1], [0, 0, 1.292]);
+    createObject(boomGroup, cylinderGeometry, material, [forePendantX, pendantsY, 0], [pendantsWidth, forePendantLength, pendantsWidth], [0, 0, forePendantAngle]);
     // rear pendant
-    createObject(boomGroup, cylinderGeometry, material, [-6, 4, 0], [0.1, 12.5, 0.1], [0, 0, -1.05]);
+    createObject(boomGroup, cylinderGeometry, material, [rearPendantX, pendantsY, 0], [pendantsWidth, rearPendantLength, pendantsWidth], [0, 0, rearPendantAngle]);
 
-    car = createReferencial(boomGroup, [10, -1, 0], identityVector, zeroVector);
+    car = createReferencial(boomGroup, carInitialPlacement, identityVector, zeroVector);
 
-    const clawCar = createObject(car, boxGeometry, material, zeroVector, [3, 1, 2], zeroVector);
-    carMaxX = boom.position.x + (boom.scale.x / 2) - clawCar.scale.x / 2;
-    carMinX = boom.position.x;
+    // claw car
+    createObject(car, boxGeometry, material, zeroVector, [carWidth, carHeight, carDepth], zeroVector);
 
-    cable = createObject(car, cylinderGeometry, material, [0, -7.5, 0], [0.5, 14, 0.5], zeroVector);
+    cable = createObject(car, cylinderGeometry, material, [0, cableY, 0], [cableWidth, cableLength, cableWidth], zeroVector);
     cableInitialYScale = cable.scale.y;
 
-    clawBase = createReferencial(car, [0, -15, 0], identityVector, zeroVector);
-    clawMinY = -28;
-    clawMaxY = - (clawCar.scale.y + coneGeometry.parameters.height) / 2;
+    clawBase = createReferencial(car, [0, clawBaseY, 0], identityVector, zeroVector);
 
     // claw base
     createObject(clawBase, coneGeometry, material, zeroVector, identityVector, zeroVector);
 
     const clawReferencial = createReferencial(clawBase, zeroVector, identityVector, zeroVector);
 
-    const clawsY = - coneGeometry.parameters.height / 2;
+    claw1 = createReferencial(clawReferencial, [clawsRadius, clawsY, 0], identityVector, zeroVector);
+    claw2 = createReferencial(clawReferencial, [-clawsRadius, clawsY, 0], identityVector, zeroVector);
+    claw3 = createReferencial(clawReferencial, [0, clawsY, clawsRadius], identityVector, zeroVector);
+    claw4 = createReferencial(clawReferencial, [0, clawsY, -clawsRadius], identityVector, zeroVector);
 
-    claw1 = createReferencial(clawReferencial, [1.5, clawsY, 0], [0.5, 2, 0.5], zeroVector);
-    claw2 = createReferencial(clawReferencial, [-1.5, clawsY, 0], [0.5, 2, 0.5], zeroVector);
-    claw3 = createReferencial(clawReferencial, [0, clawsY, 1.5], [0.5, 2, 0.5], zeroVector);
-    claw4 = createReferencial(clawReferencial, [0, clawsY, -1.5], [0.5, 2, 0.5], zeroVector);
-
-    abracadabraClaws(material);
+    abracadabraClaws(material, clawsLength, clawsWidth);
 
     clawCollisionSphere = addCollisionSphere(clawBase, 3);
 
