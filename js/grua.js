@@ -9,7 +9,7 @@ const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
 
 let activeCamera, controls;
 let wireframeMode = false;
-let boomGroup, boomRotationSpeed = 0.02;
+let boomGroup, boomRotationSpeed = 0.01;
 let car, carMaxX, carMinX, carSpeed = 0.1;
 let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.1;
 let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, minClawAngle = 0.8, clawSpeed = 0.03;
@@ -89,7 +89,7 @@ function createCrane(x, y, z) {
     cableInitialYScale = cable.scale.y;
 
     clawBase = createReferencial(car, [0, -15, 0], identityVector, zeroVector);
-    clawMinY = -(cable.scale.y + coneGeometry.parameters.height / 2);
+    clawMinY = -28;
     clawMaxY = - (clawCar.scale.y + coneGeometry.parameters.height) / 2;
 
     // claw base
@@ -153,9 +153,9 @@ function createScene() {
     let light = new THREE.AmbientLight(0xffffff, 1);
     scene.add(light);
 
-    createCrane(0, 0, 0).name = "Crane";
+    createCrane(0, 1.5, 0).name = "Crane";
     createContainer(20, 0, 0).name = "Container";
-    createSquareLoad(-17, 0, 13).name = "Load";
+    createSquareLoad(-17, 0.5, 13).name = "Load";
 }
 
 function setupCameras() {
