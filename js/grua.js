@@ -187,11 +187,12 @@ function updateHUD() {
     });
     hudElement.innerHTML += `<br>Viewing Mode: ${wireframeMode ? 'Wireframe' : 'Solid'}<br>`;
 
-    hudElement.innerHTML += `<br>Crane Controls:<br>`;
-    hudElement.innerHTML += `Q/A: Rotate upper section<br>`;
-    hudElement.innerHTML += `W/S: Move trolley<br>`;
-    hudElement.innerHTML += `E/D: Move hook block and claw<br>`;
-    hudElement.innerHTML += `R/F: Open/close gripper<br>`;
+    hudElement.innerHTML += `<br>Crane Controls<br>`;
+
+    hudElement.innerHTML += `Q/A - Rotate upper section: ${keys['q'] || keys['a'] ? 'Active' : 'Inactive'}<br>`;
+    hudElement.innerHTML += `W/S - Move trolley: ${keys['w'] || keys['s'] ? 'Active' : 'Inactive'}<br>`;
+    hudElement.innerHTML += `E/D - Move hook block and claw: ${keys['e'] || keys['d'] ? 'Active' : 'Inactive'}<br>`;
+    hudElement.innerHTML += `R/F - Open/close gripper: ${keys['r'] || keys['f'] ? 'Active' : 'Inactive'}<br>`;
 }
 
 function init() {
@@ -233,7 +234,6 @@ function onKeyDown(e) {
         activeCamera = cameras[key - 1];
         controls.object = activeCamera;
         controls.update();
-        updateHUD();
     }
     keys[e.key.toLowerCase()] = true;
 }
@@ -274,6 +274,7 @@ function animate() {
     if (keys['f']) {
         closeClaw();
     }
+    updateHUD();
     render();
     requestAnimationFrame(animate);
 }
