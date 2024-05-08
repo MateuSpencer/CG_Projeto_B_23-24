@@ -9,10 +9,10 @@ const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
 
 let activeCamera, controls;
 let wireframeMode = false;
-let boomGroup, boomRotationSpeed = 0.05;
+let boomGroup, boomRotationSpeed = 0.02;
 let car, carMaxX, carMinX, carSpeed = 0.1;
 let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.1;
-let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, minClawAngle = 0.8, clawSpeed = 0.1;
+let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, minClawAngle = 0.8, clawSpeed = 0.03;
 let cableInitialYScale;
 let keys = {};
 
@@ -98,6 +98,42 @@ function createCrane(x, y, z) {
     return craneReferencial;
 }
 
+function createContainer(x, y, z) {
+    'use strict';
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xfff0000 });
+    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff }); // Blue floor
+
+    const container = new THREE.Object3D();
+
+    // Floor
+    createObject(container, boxGeometry, floorMaterial, [x, y, z], [4, 0.1, 8], zeroVector);
+
+    // Walls
+    createObject(container, boxGeometry, wallMaterial, [x - 2, y + 2, z], [0.1, 4, 8], zeroVector); // Left wall
+    createObject(container, boxGeometry, wallMaterial, [x + 2, y + 2, z], [0.1, 4, 8], zeroVector); // Right wall
+    createObject(container, boxGeometry, wallMaterial, [x, y + 2, z - 4], [4, 4, 0.1], zeroVector); // Front wall
+    createObject(container, boxGeometry, wallMaterial, [x, y + 2, z + 4], [4, 4, 0.1], zeroVector); // Back wall
+
+    scene.add(container);
+
+    return container;
+}
+
+function createSquareLoad(x, y, z) {
+    'use strict';
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+    const boxReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+
+    // box
+    createObject(boxReferencial, boxGeometry, material, zeroVector, [1, 1, 1], zeroVector);
+
+    return boxReferencial;
+}
+
+
 function createScene() {
     'use strict';
     scene.background = new THREE.Color(0xadd8e6);
@@ -107,6 +143,8 @@ function createScene() {
     scene.add(light);
 
     createCrane(0, 0, 0).name = "Crane";
+    createContainer(20, 0, 0).name = "Container";
+    createSquareLoad(-17, 0, 13).name = "Load";
 }
 
 function setupCameras() {
