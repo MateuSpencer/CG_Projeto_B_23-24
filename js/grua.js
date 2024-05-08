@@ -6,6 +6,7 @@ const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const cameras = [];
 const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
+const tetrahedronMagicRotation = [2.1933, 0.6141, -0.7780];
 
 let activeCamera, controls;
 let wireframeMode = false;
@@ -34,6 +35,19 @@ function createReferencial(parent, position, scale, rotation) {
     ref.position.set(position[0], position[1], position[2]);
     parent.add(ref);
     return ref;
+}
+
+function abracadabraClaws(material) {
+    const tetrahedron = new THREE.TetrahedronGeometry();
+    const clawRef1 = createReferencial(claw1, zeroVector, identityVector, [0, 2 * Math.PI / 4, 0]);
+    const clawRef2 = createReferencial(claw2, zeroVector, identityVector, [0, -2 * Math.PI / 4, 0]);
+    const clawRef3 = createReferencial(claw3, zeroVector, identityVector, zeroVector);
+    const clawRef4 = createReferencial(claw4, zeroVector, identityVector, [0, 2 * Math.PI / 2, 0]);
+
+    createObject(clawRef1, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
+    createObject(clawRef2, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
+    createObject(clawRef3, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
+    createObject(clawRef4, tetrahedron, material, [0, -0.6, 0], identityVector, tetrahedronMagicRotation);
 }
 
 function createCrane(x, y, z) {
@@ -85,15 +99,12 @@ function createCrane(x, y, z) {
 
     const clawsY = - coneGeometry.parameters.height / 2;
 
-    claw1 = createReferencial(clawReferencial, [1.5, clawsY, 0], identityVector, zeroVector);
-    claw2 = createReferencial(clawReferencial, [-1.5, clawsY, 0], identityVector, zeroVector);
-    claw3 = createReferencial(clawReferencial, [0, clawsY, 1.5], identityVector, zeroVector);
-    claw4 = createReferencial(clawReferencial, [0, clawsY, -1.5], identityVector, zeroVector);
+    claw1 = createReferencial(clawReferencial, [1.5, clawsY, 0], [0.5, 2, 0.5], zeroVector);
+    claw2 = createReferencial(clawReferencial, [-1.5, clawsY, 0], [0.5, 2, 0.5], zeroVector);
+    claw3 = createReferencial(clawReferencial, [0, clawsY, 1.5], [0.5, 2, 0.5], zeroVector);
+    claw4 = createReferencial(clawReferencial, [0, clawsY, -1.5], [0.5, 2, 0.5], zeroVector);
 
-    createObject(claw1, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
-    createObject(claw2, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
-    createObject(claw3, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
-    createObject(claw4, boxGeometry, material, [0, -1.25, 0], [0.5, 2.5, 0.5], zeroVector);
+    abracadabraClaws(material);
 
     return craneReferencial;
 }
@@ -178,7 +189,7 @@ function setupCameras() {
     // Hook camera (movable)
     const cameraHook = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
     clawBase.add(cameraHook);
-    cameraHook.lookAt(cameraHook.position.x, 0, cameraHook.position.y );
+    cameraHook.lookAt(cameraHook.position.x, 0, cameraHook.position.y);
     cameras.push(cameraHook);
 
     activeCamera = cameraPerspective;
@@ -312,6 +323,7 @@ function animate() {
     if (keys['f']) {
         closeClaw();
     }
+
     updateHUD();
     render();
     requestAnimationFrame(animate);
