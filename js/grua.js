@@ -9,12 +9,50 @@ const identityVector = [1, 1, 1], zeroVector = [0, 0, 0];
 
 let activeCamera, controls;
 let wireframeMode = false;
-let boomGroup, boomRotationSpeed = 0.01;
-let car, carMaxX, carMinX, carSpeed = 0.1;
-let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.1;
+let boomGroup, boomRotationSpeed = 0.02;
+let car, carMaxX, carMinX, carSpeed = 0.2;
+let clawBase, cable, clawMaxY, clawMinY, clawBaseSpeed = 0.2;
 let claw1, claw2, claw3, claw4, maxClawAngle = 0.4, minClawAngle = 0.8, clawSpeed = 0.03;
 let cableInitialYScale;
 let keys = {};
+let clawCollisionSphere;
+let loadCollisionSpheres = [];
+
+
+function addCollisionSphere(object, radius) {
+    const sphereGeometry = new THREE.SphereGeometry(radius, 16, 16);
+    const invisibleMaterial = new THREE.MeshBasicMaterial({ visible: true });
+    const sphere = new THREE.Mesh(sphereGeometry, invisibleMaterial);
+    object.add(sphere);
+    return sphere;
+}
+
+function checkSphereCollision(sphere1, sphere2) {
+    var sphere1Position = sphere1.localToWorld(sphere1.position.clone());
+    var sphere2Position = sphere2.localToWorld(sphere2.position.clone());
+
+    const distance = sphere1Position.distanceTo(sphere2Position);
+    const totalRadius = sphere1.geometry.parameters.radius + sphere2.geometry.parameters.radius;
+    return distance < totalRadius;
+}
+
+function animateClawToContainer(claw, load, targetPosition, duration) {
+    //disableKeyProcessing();
+    console.log("Animating claw to container");
+    // TODO
+
+    //enableKeyProcessing();
+}
+
+function disableKeyProcessing() {
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("keyup", onKeyUp);
+}
+
+function enableKeyProcessing() {
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+}
 
 function createObject(parent, geometry, material, position, scale, rotation) {
     'use strict';
@@ -106,6 +144,8 @@ function createCrane(x, y, z) {
 
     abracadabraClaws(material);
 
+    clawCollisionSphere = addCollisionSphere(clawBase, 3);
+
     return craneReferencial;
 }
 
@@ -138,9 +178,10 @@ function createSquareLoad(x, y, z) {
 
     const boxReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
 
-    // box
     createObject(boxReferencial, boxGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
+    loadCollisionSpheres.push(addCollisionSphere(boxReferencial, 1.5));
+    
     return boxReferencial;
 }
 
@@ -155,7 +196,7 @@ function createScene() {
 
     createCrane(0, 1.5, 0).name = "Crane";
     createContainer(20, 0, 0).name = "Container";
-    createSquareLoad(-17, 0.5, 13).name = "Load";
+    createSquareLoad(10, 0.5, 0).name = "Load";
 }
 
 function setupCameras() {
@@ -294,6 +335,15 @@ function onKeyUp(e) {
 
 function animate() {
     'use strict';
+
+
+
+    for (let i = 0; i < loadCollisionSpheres.length; i++) {
+        if (checkSphereCollision(clawCollisionSphere, loadCollisionSpheres[i])) {
+            animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0}, 2000);
+            break;
+        }
+    }
 
     if (keys['q']) {
         boomGroup.rotation.y += boomRotationSpeed;
