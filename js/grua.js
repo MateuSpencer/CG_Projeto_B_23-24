@@ -55,9 +55,9 @@ function createCrane(x, y, z) {
     // boom
     const boom = createObject(boomGroup, boxGeometry, material, [5, 0, 0], [34, 2, 2], zeroVector);
     // cabin
-    createObject(boomGroup, boxGeometry, material, [0, -5.5, -0.5], [4, 3, 5], zeroVector);
+    createObject(boomGroup, boxGeometry, material, [0, -5.5, 0.5], [4, 3, 5], zeroVector);
     // counterweight
-    createObject(boomGroup, boxGeometry, material, [-7.5, -2, -1], [3, 6, 8], zeroVector);
+    createObject(boomGroup, boxGeometry, material, [-7.5, -2, 0], [3, 6, 8], zeroVector);
     // tower peak
     createObject(boomGroup, boxGeometry, material, [0, 4, 0], [2, 6, 2], zeroVector);
     // fore pendant
