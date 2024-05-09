@@ -331,13 +331,13 @@ function createContainer(x, y, z) {
     const container = new THREE.Object3D();
 
     // Floor
-    createObject(container, boxGeometry, floorMaterial, [x, y, z], [4, 0.1, 8], zeroVector);
+    createObject(container, boxGeometry, floorMaterial, [x, y, z], [6, 0.1, 10], zeroVector);
 
     // Walls
-    createObject(container, boxGeometry, wallMaterial, [x - 2, y + 2, z], [0.1, 4, 8], zeroVector); // Left wall
-    createObject(container, boxGeometry, wallMaterial, [x + 2, y + 2, z], [0.1, 4, 8], zeroVector); // Right wall
-    createObject(container, boxGeometry, wallMaterial, [x, y + 2, z - 4], [4, 4, 0.1], zeroVector); // Front wall
-    createObject(container, boxGeometry, wallMaterial, [x, y + 2, z + 4], [4, 4, 0.1], zeroVector); // Back wall
+    createObject(container, boxGeometry, wallMaterial, [x - 3, y + 3, z], [0.1, 6, 10], zeroVector); // Left wall
+    createObject(container, boxGeometry, wallMaterial, [x + 3, y + 3, z], [0.1, 6, 10], zeroVector); // Right wall
+    createObject(container, boxGeometry, wallMaterial, [x, y + 3, z - 5], [6, 6, 0.1], zeroVector); // Front wall
+    createObject(container, boxGeometry, wallMaterial, [x, y + 3, z + 5], [6, 6, 0.1], zeroVector); // Back wall
 
     scene.add(container);
 
@@ -346,18 +346,73 @@ function createContainer(x, y, z) {
 
 function createSquareLoad(x, y, z) {
     'use strict';
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
     const boxReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
 
     createObject(boxReferencial, boxGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
-    loadCollisionSpheres.push(addCollisionSphere(boxReferencial, 0.75));
+    loadCollisionSpheres.push(addCollisionSphere(boxReferencial, 1.75));
     
     return boxReferencial;
 }
 
+function createDodecahedronLoad(x, y, z) {
+    'use strict';
+    const dodecahedronGeometry = new THREE.DodecahedronGeometry(2.5, 3);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+    const dodecahedronReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+
+    createObject(dodecahedronReferencial, dodecahedronGeometry, material, zeroVector, [1, 1, 1], zeroVector);
+
+    loadCollisionSpheres.push(addCollisionSphere(dodecahedronReferencial, 2.5));
+    
+    return dodecahedronReferencial;
+}
+
+function createIcosahedronLoad(x, y, z) {
+    'use strict';
+    const icosahedronGeometry = new THREE.IcosahedronGeometry(1.3, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+    const icosahedronReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+
+    createObject(icosahedronReferencial, icosahedronGeometry, material, zeroVector, [1, 1, 1], zeroVector);
+
+    loadCollisionSpheres.push(addCollisionSphere(icosahedronReferencial, 1.3));
+    
+    return icosahedronReferencial;
+}
+
+function createTorusLoad(x, y, z) {
+    'use strict';
+    const torusGeometry = new THREE.TorusGeometry( 1, 0.75, 16, 100 ); ;
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+    const torusReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+
+    createObject(torusReferencial, torusGeometry, material, zeroVector, [1, 1, 1], zeroVector);
+
+    loadCollisionSpheres.push(addCollisionSphere(torusReferencial, 1.75));
+    
+    return torusReferencial;
+}
+
+function createTorusKnotLoad(x, y, z) {
+    'use strict';
+    const torusKnotGeometry = new THREE.TorusKnotGeometry( 1.4, 1.3, 8, 75 ); ;
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+    const torusKnotReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+
+    createObject(torusKnotReferencial, torusKnotGeometry, material, zeroVector, [1, 1, 1], zeroVector);
+
+    loadCollisionSpheres.push(addCollisionSphere(torusKnotReferencial, 2.8));
+    
+    return torusKnotReferencial;
+}
 
 function createScene() {
     'use strict';
@@ -369,7 +424,11 @@ function createScene() {
 
     createCrane(0, 1.5, 0).name = "Crane";
     createContainer(20, 0, 0).name = "Container";
-    createSquareLoad(10, 0.5, 7).name = "Load";
+    createSquareLoad(10, 0.5, 7).name = "Load 1";
+    createDodecahedronLoad(10, 0.5, -7).name = "Load 2";
+    createIcosahedronLoad(-8, 0.5, -12).name = "Load 3";
+    createTorusLoad(-15, 0.5, 13.2).name = "Load 4";
+    createTorusKnotLoad(-21, 0.5, -5).name = "Load 5";
 }
 
 function setupCameras() {
