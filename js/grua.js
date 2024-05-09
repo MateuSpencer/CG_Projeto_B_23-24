@@ -142,13 +142,7 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 6: // Ascend the claw again without the load
-            console.log("Ascending claw again without the load");
-            console.log(claw.position.y);
-            console.log(clawMaxY);
-            if (claw.position.y < clawMaxY) {
-                moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
-            }
+        case 6:
             break;
     }
 }
@@ -541,19 +535,27 @@ function onKeyUp(e) {
 function animate() {
     'use strict';
 
-
+    console.log(animationState);
     let collision = false;
     for (let i = 0; i < loadCollisionSpheres.length; i++) {
         if (checkSphereCollision(clawCollisionSphere, loadCollisionSpheres[i])) {
-            collision = 1;
+            //checks if animation is done, if it is, it doesn't consider collision so that the claw can move back up again
+            if(animationState != 6){
+                collision = 1;
+            }
             animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0}); //TODO: mudar isto para a posição do contentor
             break;
         }
     }
     // after animation
     if (animationState == 6 && collision == false) {
-        animationState = 0;
-        enableKeyProcessing();
+        console.log("entrei");
+        if (clawCollisionSphere.parent.position.y < clawMaxY) {
+            moveClawBaseUp(clawCollisionSphere.parent.position.y, animationSpeed, clawMaxY);
+        } else {
+            animationState = 0;
+            enableKeyProcessing();
+        }
     }
 
     if (keys['q']) {
