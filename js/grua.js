@@ -47,12 +47,6 @@ function animateClawToContainer(claw, load, targetPosition) {
     let clawWorldPosition = new THREE.Vector3();
     claw.getWorldPosition(clawWorldPosition);
 
-    let loadWorldPosition = new THREE.Vector3();
-    load.getWorldPosition(loadWorldPosition);
-
-    let boomGroupWorldPosition = new THREE.Vector3();
-    boomGroup.getWorldPosition(boomGroupWorldPosition);
-
     switch (animationState) {
         case 0: // Move the claw and load up to the maximum
             console.log("Moving claw and load up");
@@ -86,13 +80,41 @@ function animateClawToContainer(claw, load, targetPosition) {
             break;
         case 2: // TODO: Move the car so the claw is above the container
             console.log("Moving car so claw is above container");
-            car.getWorldPosition(clawWorldPosition);
-            console.log(clawWorldPosition.x)
-            console.log(claw.position.x)
-            console.log(targetPosition.x)
+            console.log(clawWorldPosition.x);
+            console.log(targetPosition.x);
 
-            if (clawWorldPosition.x < targetPosition.x) {
+            if (Math.round(clawWorldPosition.x) < Math.round(targetPosition.x)) {
+
+                let prevClawX = clawWorldPosition.x;
+                let prevClawZ = clawWorldPosition.z;
+
                 car.position.x = moveCarForward(clawWorldPosition.x, animationSpeed, targetPosition.x);
+
+                claw.getWorldPosition(clawWorldPosition);
+
+                let deltaX = clawWorldPosition.x - prevClawX;
+                let deltaZ = clawWorldPosition.z - prevClawZ;
+                console.log(deltaX)
+                console.log(deltaZ)
+
+                load.position.x += deltaX;
+                load.position.z += deltaZ;
+
+            } else if (Math.round(clawWorldPosition.x) > Math.round(targetPosition.x)) {
+                let prevClawX = clawWorldPosition.x;
+                let prevClawZ = clawWorldPosition.z;
+
+                car.position.x = moveCarBackward(clawWorldPosition.x, animationSpeed, targetPosition.x);
+
+                claw.getWorldPosition(clawWorldPosition);
+
+                let deltaX = clawWorldPosition.x - prevClawX;
+                let deltaZ = clawWorldPosition.z - prevClawZ;
+                console.log(deltaX)
+                console.log(deltaZ)
+
+                load.position.x += deltaX;
+                load.position.z += deltaZ;
             } else {
                 animationState++;
             }
@@ -453,7 +475,7 @@ function moveCarForward(position, speed, limit) {
 }
 
 function moveCarBackward(position, speed, limit) {
-    return Math.max(position + speed, limit);
+    return Math.max(position - speed, limit);
 }
 
 function moveClawBaseUp(position, speed, limit) {
@@ -464,7 +486,7 @@ function moveClawBaseUp(position, speed, limit) {
 }
 
 function moveClawBaseDown(position, speed, limit) {
-    let newPosition = Math.max(position + speed, limit);
+    let newPosition = Math.max(position - speed, limit);
     cable.scale.y = newPosition;
     cable.position.y = cable.scale.y / 2;
     return newPosition;
@@ -510,7 +532,7 @@ function animate() {
 
     for (let i = 0; i < loadCollisionSpheres.length; i++) {
         if (checkSphereCollision(clawCollisionSphere, loadCollisionSpheres[i])) {
-            animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0});
+            animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0}); //TODO: mudar isto para a posição do contentor
             break;
         }
     }
@@ -525,13 +547,13 @@ function animate() {
         car.position.x = moveCarForward(car.position.x, carSpeed, carMaxX);
     }
     if (keys['s']) {
-        car.position.x = moveCarBackward(car.position.x, -carSpeed, carMinX);
+        car.position.x = moveCarBackward(car.position.x, carSpeed, carMinX);
     }
     if (keys['e']) {
         clawBase.position.y = moveClawBaseUp(clawBase.position.y, clawBaseSpeed, clawMaxY);
     }
     if (keys['d']) {
-        clawBase.position.y = moveClawBaseDown(clawBase.position.y, -clawBaseSpeed, clawMinY);
+        clawBase.position.y = moveClawBaseDown(clawBase.position.y, clawBaseSpeed, clawMinY);
     }
     if (keys['r']) {
         openClaw();
