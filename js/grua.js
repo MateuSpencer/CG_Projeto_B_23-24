@@ -53,8 +53,14 @@ function animateClawToContainer(claw, load, targetPosition) {
 
 
     switch (animationState) {
-        case 0: // Move the claw and load up to the maximum
-            closeClaw();
+        case 0: // Close claw
+            if(claw1.rotation.z != -maxClawAngle){
+                closeClaw();
+            } else {
+                animationState++;
+            }
+            break;
+        case 1: // Move the claw and load up to the maximum
             console.log("Moving claw and load up");
             if (claw.position.y < clawMaxY) {
                 moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
@@ -63,7 +69,7 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 1: // Rotate the boom so it's above the container
+        case 2: // Rotate the boom so it's above the container
             console.log("Rotating boom above container");
             if (Math.round(clawWorldPosition.z) != Math.round(targetPosition.z)) {
                 let prevClawX = clawWorldPosition.x;
@@ -87,7 +93,7 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 2: // Move the car so the claw is above the container
+        case 3: // Move the car so the claw is above the container
             if (Math.round(clawWorldPosition.x) < Math.round(targetPosition.x)) {
 
                 let prevClawX = clawWorldPosition.x;
@@ -120,7 +126,7 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 3: // Descend the load until it is at the container
+        case 4: // Descend the load until it is at the container
             console.log("Descending load until it is at the container");
             if (loadWorldPosition.y > 2) {
                 moveClawBaseDown(clawBase.position.y, animationSpeed, clawMinY);
@@ -129,8 +135,14 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 4: // Ascend the claw again without the load
-            openClaw();
+        case 5: // Open claw
+            if(claw1.rotation.z != minClawAngle){
+                openClaw();
+            } else {
+                animationState++;
+            }
+            break;
+        case 6: // Ascend the claw again without the load
             console.log("Ascending claw again without the load");
             console.log(claw.position.y);
             console.log(clawMaxY);
@@ -539,7 +551,7 @@ function animate() {
         }
     }
     // after animation
-    if (animationState == 4 && collision == false) {
+    if (animationState == 6 && collision == false) {
         animationState = 0;
         enableKeyProcessing();
     }
