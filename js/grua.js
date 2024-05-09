@@ -47,11 +47,16 @@ function animateClawToContainer(claw, load, targetPosition) {
     let clawWorldPosition = new THREE.Vector3();
     claw.getWorldPosition(clawWorldPosition);
 
+
+    let loadWorldPosition = new THREE.Vector3();
+    load.getWorldPosition(loadWorldPosition);
+
+
     switch (animationState) {
         case 0: // Move the claw and load up to the maximum
             console.log("Moving claw and load up");
             if (claw.position.y < clawMaxY) {
-                claw.position.y = moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
+                moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
                 load.position.y += animationSpeed;
             } else {
                 animationState++;
@@ -69,8 +74,6 @@ function animateClawToContainer(claw, load, targetPosition) {
 
                 let deltaX = clawWorldPosition.x - prevClawX;
                 let deltaZ = clawWorldPosition.z - prevClawZ;
-                console.log(deltaX)
-                console.log(deltaZ)
 
                 load.position.x += deltaX;
                 load.position.z += deltaZ;
@@ -78,24 +81,18 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 2: // TODO: Move the car so the claw is above the container
-            console.log("Moving car so claw is above container");
-            console.log(clawWorldPosition.x);
-            console.log(targetPosition.x);
-
+        case 2: // Move the car so the claw is above the container
             if (Math.round(clawWorldPosition.x) < Math.round(targetPosition.x)) {
 
                 let prevClawX = clawWorldPosition.x;
                 let prevClawZ = clawWorldPosition.z;
 
-                car.position.x = moveCarForward(clawWorldPosition.x, animationSpeed, targetPosition.x);
+                moveCarForward(clawWorldPosition.x, animationSpeed, targetPosition.x);
 
                 claw.getWorldPosition(clawWorldPosition);
 
                 let deltaX = clawWorldPosition.x - prevClawX;
                 let deltaZ = clawWorldPosition.z - prevClawZ;
-                console.log(deltaX)
-                console.log(deltaZ)
 
                 load.position.x += deltaX;
                 load.position.z += deltaZ;
@@ -104,14 +101,12 @@ function animateClawToContainer(claw, load, targetPosition) {
                 let prevClawX = clawWorldPosition.x;
                 let prevClawZ = clawWorldPosition.z;
 
-                car.position.x = moveCarBackward(clawWorldPosition.x, animationSpeed, targetPosition.x);
+                moveCarBackward(clawWorldPosition.x, animationSpeed, targetPosition.x);
 
                 claw.getWorldPosition(clawWorldPosition);
 
                 let deltaX = clawWorldPosition.x - prevClawX;
                 let deltaZ = clawWorldPosition.z - prevClawZ;
-                console.log(deltaX)
-                console.log(deltaZ)
 
                 load.position.x += deltaX;
                 load.position.z += deltaZ;
@@ -119,10 +114,11 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 3: // TODO:Descend the load until it is at the container
+        case 3: // Descend the load until it is at the container
             console.log("Descending load until it is at the container");
             if (loadWorldPosition.y > 2) {
-                load.position.y = moveClawBaseDown(loadWorldPosition.y, -animationSpeed, CONTAINER_HEIGHT);
+                moveClawBaseDown(clawBase.position.y, animationSpeed, clawMinY);
+                load.position.y -= animationSpeed;
             } else {
                 animationState++;
             }
@@ -130,7 +126,7 @@ function animateClawToContainer(claw, load, targetPosition) {
         case 4: // TODO:Ascend the claw again without the load
             console.log("Ascending claw again without the load");
             if (clawWorldPosition.y < clawMaxY) {
-                claw.position.y = moveClawBaseUp(clawWorldPosition.y, animationSpeed, clawMaxY);
+                moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
             } else {
                 animationState = 0; // Reset the animation state
                 enableKeyProcessing();
@@ -471,25 +467,25 @@ function rotateBoomGroup(speed) {
 }
 
 function moveCarForward(position, speed, limit) {
-    return Math.min(position + speed, limit);
+    car.position.x =  Math.min(position + speed, limit);
 }
 
 function moveCarBackward(position, speed, limit) {
-    return Math.max(position - speed, limit);
+    car.position.x =  Math.max(position - speed, limit);
 }
 
 function moveClawBaseUp(position, speed, limit) {
     let newPosition = Math.min(position + speed, limit);
     cable.scale.y = newPosition;
     cable.position.y = cable.scale.y / 2;
-    return newPosition;
+    clawBase.position.y =  newPosition;
 }
 
 function moveClawBaseDown(position, speed, limit) {
     let newPosition = Math.max(position - speed, limit);
     cable.scale.y = newPosition;
     cable.position.y = cable.scale.y / 2;
-    return newPosition;
+    clawBase.position.y =  newPosition;
 }
 
 function closeClaw() {
@@ -544,16 +540,16 @@ function animate() {
         rotateBoomGroup(-boomRotationSpeed);
     }
     if (keys['w']) {
-        car.position.x = moveCarForward(car.position.x, carSpeed, carMaxX);
+        moveCarForward(car.position.x, carSpeed, carMaxX);
     }
     if (keys['s']) {
-        car.position.x = moveCarBackward(car.position.x, carSpeed, carMinX);
+        moveCarBackward(car.position.x, carSpeed, carMinX);
     }
     if (keys['e']) {
-        clawBase.position.y = moveClawBaseUp(clawBase.position.y, clawBaseSpeed, clawMaxY);
+        moveClawBaseUp(clawBase.position.y, clawBaseSpeed, clawMaxY);
     }
     if (keys['d']) {
-        clawBase.position.y = moveClawBaseDown(clawBase.position.y, clawBaseSpeed, clawMinY);
+        moveClawBaseDown(clawBase.position.y, clawBaseSpeed, clawMinY);
     }
     if (keys['r']) {
         openClaw();
