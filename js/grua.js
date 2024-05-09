@@ -311,7 +311,7 @@ function createCrane(x, y, z) {
 
     abracadabraClaws(material, clawsLength, clawsWidth);
 
-    clawCollisionSphere = addCollisionSphere(clawBase, 3);
+    clawCollisionSphere = addCollisionSphere(clawBase, 2.5);
 
     return craneReferencial;
 }
@@ -347,7 +347,7 @@ function createSquareLoad(x, y, z) {
 
     createObject(boxReferencial, boxGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
-    loadCollisionSpheres.push(addCollisionSphere(boxReferencial, 1.5));
+    loadCollisionSpheres.push(addCollisionSphere(boxReferencial, 0.75));
     
     return boxReferencial;
 }
