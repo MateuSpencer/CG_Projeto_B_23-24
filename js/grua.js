@@ -54,6 +54,7 @@ function animateClawToContainer(claw, load, targetPosition) {
 
     switch (animationState) {
         case 0: // Move the claw and load up to the maximum
+            closeClaw();
             console.log("Moving claw and load up");
             if (claw.position.y < clawMaxY) {
                 moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
@@ -124,6 +125,7 @@ function animateClawToContainer(claw, load, targetPosition) {
             }
             break;
         case 4: // Ascend the claw again without the load
+            openClaw();
             console.log("Ascending claw again without the load");
             console.log(claw.position.y);
             console.log(clawMaxY);
