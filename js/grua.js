@@ -123,14 +123,12 @@ function animateClawToContainer(claw, load, targetPosition) {
                 animationState++;
             }
             break;
-        case 4: // TODO:Ascend the claw again without the load
+        case 4: // Ascend the claw again without the load
             console.log("Ascending claw again without the load");
-            if (clawWorldPosition.y < clawMaxY) {
+            console.log(claw.position.y);
+            console.log(clawMaxY);
+            if (claw.position.y < clawMaxY) {
                 moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
-            } else {
-                animationState = 0; // Reset the animation state
-                enableKeyProcessing();
-                //TODO: problema, isto não deve dar porque deixa de fazer contacto nao volta aqui à função
             }
             break;
     }
@@ -525,12 +523,18 @@ function animate() {
     'use strict';
 
 
-
+    let collision = false;
     for (let i = 0; i < loadCollisionSpheres.length; i++) {
         if (checkSphereCollision(clawCollisionSphere, loadCollisionSpheres[i])) {
+            collision = 1;
             animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0}); //TODO: mudar isto para a posição do contentor
             break;
         }
+    }
+    // after animation
+    if (animationState == 4 && collision == false) {
+        animationState = 0;
+        enableKeyProcessing();
     }
 
     if (keys['q']) {
