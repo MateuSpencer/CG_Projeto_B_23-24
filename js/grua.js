@@ -17,6 +17,8 @@ let cableInitialYScale;
 let keys = {};
 let clawCollisionSphere;
 let loadCollisionSpheres = [];
+let animationState = 0;
+let animationSpeed = 0.5;
 
 
 function addCollisionSphere(object, radius) {
@@ -36,17 +38,92 @@ function checkSphereCollision(sphere1, sphere2) {
     return distance < totalRadius;
 }
 
-function animateClawToContainer(claw, load, targetPosition, duration) {
-    //disableKeyProcessing();
-    console.log("Animating claw to container");
-    // TODO
+function animateClawToContainer(claw, load, targetPosition) {
+    // Disable key processing
+    disableKeyProcessing();
 
-    //enableKeyProcessing();
+
+    // Convert local coordinates to world coordinates
+    let clawWorldPosition = new THREE.Vector3();
+    claw.getWorldPosition(clawWorldPosition);
+
+    let loadWorldPosition = new THREE.Vector3();
+    load.getWorldPosition(loadWorldPosition);
+
+    let boomGroupWorldPosition = new THREE.Vector3();
+    boomGroup.getWorldPosition(boomGroupWorldPosition);
+
+    switch (animationState) {
+        case 0: // Move the claw and load up to the maximum
+            console.log("Moving claw and load up");
+            if (claw.position.y < clawMaxY) {
+                claw.position.y = moveClawBaseUp(claw.position.y, animationSpeed, clawMaxY);
+                load.position.y += animationSpeed;
+            } else {
+                animationState++;
+            }
+            break;
+        case 1: // Rotate the boom so it's above the container
+            console.log("Rotating boom above container");
+            if (Math.round(clawWorldPosition.z) != Math.round(targetPosition.z)) {
+                let prevClawX = clawWorldPosition.x;
+                let prevClawZ = clawWorldPosition.z;
+
+                rotateBoomGroup(animationSpeed*0.1);
+
+                claw.getWorldPosition(clawWorldPosition);
+
+                let deltaX = clawWorldPosition.x - prevClawX;
+                let deltaZ = clawWorldPosition.z - prevClawZ;
+                console.log(deltaX)
+                console.log(deltaZ)
+
+                load.position.x += deltaX;
+                load.position.z += deltaZ;
+            } else {
+                animationState++;
+            }
+            break;
+        case 2: // TODO: Move the car so the claw is above the container
+            console.log("Moving car so claw is above container");
+            car.getWorldPosition(clawWorldPosition);
+            console.log(clawWorldPosition.x)
+            console.log(claw.position.x)
+            console.log(targetPosition.x)
+
+            if (clawWorldPosition.x < targetPosition.x) {
+                car.position.x = moveCarForward(clawWorldPosition.x, animationSpeed, targetPosition.x);
+            } else {
+                animationState++;
+            }
+            break;
+        case 3: // TODO:Descend the load until it is at the container
+            console.log("Descending load until it is at the container");
+            if (loadWorldPosition.y > 2) {
+                load.position.y = moveClawBaseDown(loadWorldPosition.y, -animationSpeed, CONTAINER_HEIGHT);
+            } else {
+                animationState++;
+            }
+            break;
+        case 4: // TODO:Ascend the claw again without the load
+            console.log("Ascending claw again without the load");
+            if (clawWorldPosition.y < clawMaxY) {
+                claw.position.y = moveClawBaseUp(clawWorldPosition.y, animationSpeed, clawMaxY);
+            } else {
+                animationState = 0; // Reset the animation state
+                enableKeyProcessing();
+                //TODO: problema, isto não deve dar porque deixa de fazer contacto nao volta aqui à função
+            }
+            break;
+    }
 }
 
 function disableKeyProcessing() {
     window.removeEventListener("keydown", onKeyDown);
     window.removeEventListener("keyup", onKeyUp);
+    for (let key in keys) {
+        keys[key] = false;
+    }
 }
 
 function enableKeyProcessing() {
@@ -263,7 +340,7 @@ function createScene() {
 
     createCrane(0, 1.5, 0).name = "Crane";
     createContainer(20, 0, 0).name = "Container";
-    createSquareLoad(10, 0.5, 0).name = "Load";
+    createSquareLoad(10, 0.5, 7).name = "Load";
 }
 
 function setupCameras() {
@@ -367,6 +444,32 @@ function init() {
     window.addEventListener("resize", onResize);
 }
 
+function rotateBoomGroup(speed) {
+    boomGroup.rotation.y += speed;
+}
+
+function moveCarForward(position, speed, limit) {
+    return Math.min(position + speed, limit);
+}
+
+function moveCarBackward(position, speed, limit) {
+    return Math.max(position + speed, limit);
+}
+
+function moveClawBaseUp(position, speed, limit) {
+    let newPosition = Math.min(position + speed, limit);
+    cable.scale.y = newPosition;
+    cable.position.y = cable.scale.y / 2;
+    return newPosition;
+}
+
+function moveClawBaseDown(position, speed, limit) {
+    let newPosition = Math.max(position + speed, limit);
+    cable.scale.y = newPosition;
+    cable.position.y = cable.scale.y / 2;
+    return newPosition;
+}
+
 function closeClaw() {
     claw1.rotation.z = Math.max(claw1.rotation.z - clawSpeed, -maxClawAngle);
     claw2.rotation.z = Math.min(claw2.rotation.z + clawSpeed, maxClawAngle);
@@ -407,32 +510,28 @@ function animate() {
 
     for (let i = 0; i < loadCollisionSpheres.length; i++) {
         if (checkSphereCollision(clawCollisionSphere, loadCollisionSpheres[i])) {
-            animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0}, 2000);
+            animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0});
             break;
         }
     }
 
     if (keys['q']) {
-        boomGroup.rotation.y += boomRotationSpeed;
+        rotateBoomGroup(boomRotationSpeed);
     }
     if (keys['a']) {
-        boomGroup.rotation.y -= boomRotationSpeed;
+        rotateBoomGroup(-boomRotationSpeed);
     }
     if (keys['w']) {
-        car.position.x = Math.min(car.position.x + carSpeed, carMaxX);
+        car.position.x = moveCarForward(car.position.x, carSpeed, carMaxX);
     }
     if (keys['s']) {
-        car.position.x = Math.max(car.position.x - carSpeed, carMinX);
+        car.position.x = moveCarBackward(car.position.x, -carSpeed, carMinX);
     }
     if (keys['e']) {
-        clawBase.position.y = Math.min(clawBase.position.y + clawBaseSpeed, clawMaxY);
-        cable.scale.y = clawBase.position.y;
-        cable.position.y = cable.scale.y / 2;
+        clawBase.position.y = moveClawBaseUp(clawBase.position.y, clawBaseSpeed, clawMaxY);
     }
     if (keys['d']) {
-        clawBase.position.y = Math.max(clawBase.position.y - clawBaseSpeed, clawMinY);
-        cable.scale.y = clawBase.position.y;
-        cable.position.y = cable.scale.y / 2;
+        clawBase.position.y = moveClawBaseDown(clawBase.position.y, -clawBaseSpeed, clawMinY);
     }
     if (keys['r']) {
         openClaw();
