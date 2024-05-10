@@ -55,7 +55,7 @@ function animateClawToContainer(claw, load, targetPosition) {
 
     switch (animationState) {
         case 0: // Close claw
-            if(claw1.rotation.z != -maxClawAngle){
+            if (claw1.rotation.z != -maxClawAngle) {
                 closeClaw();
             } else {
                 animationState++;
@@ -75,12 +75,12 @@ function animateClawToContainer(claw, load, targetPosition) {
             if (Math.round(clawWorldPosition.z) != Math.round(targetPosition.z)) {
                 let prevClawX = clawWorldPosition.x;
                 let prevClawZ = clawWorldPosition.z;
-                
+
                 //checks which way to rotate
-                if(clawWorldPosition.z > 0){
-                    rotateBoomGroup(animationSpeed*0.1);
+                if (clawWorldPosition.z > 0) {
+                    rotateBoomGroup(animationSpeed * 0.1);
                 } else {
-                    rotateBoomGroup(-animationSpeed*0.1);
+                    rotateBoomGroup(-animationSpeed * 0.1);
                 }
 
                 claw.getWorldPosition(clawWorldPosition);
@@ -137,7 +137,7 @@ function animateClawToContainer(claw, load, targetPosition) {
             }
             break;
         case 5: // Open claw
-            if(claw1.rotation.z != minClawAngle){
+            if (claw1.rotation.z != minClawAngle) {
                 openClaw();
             } else {
                 animationState++;
@@ -184,7 +184,7 @@ function createReferencial(parent, position, scale, rotation) {
 function abracadabraClaws(material, clawsLength, clawsWidth) {
     const tetrahedronMagicRotation = [2.1933, 0.6141, -0.7780];
     const tetrahedron = new THREE.TetrahedronGeometry();
-    const clawsY = -(clawsLength/2 + 0.);
+    const clawsY = -(clawsLength / 2 + 0.);
 
     const clawRef1 = createReferencial(claw1, [0, clawsY, 0], [clawsWidth, clawsLength, clawsWidth], [0, 2 * Math.PI / 4, 0]);
     const clawRef2 = createReferencial(claw2, [0, clawsY, 0], [clawsWidth, clawsLength, clawsWidth], [0, -2 * Math.PI / 4, 0]);
@@ -197,7 +197,7 @@ function abracadabraClaws(material, clawsLength, clawsWidth) {
     createObject(clawRef4, tetrahedron, material, zeroVector, identityVector, tetrahedronMagicRotation);
 }
 
-function createCrane(x, y, z) {
+function createCrane(x, z) {
     'use strict';
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1);
@@ -274,10 +274,10 @@ function createCrane(x, y, z) {
     const clawsY = - coneGeometry.parameters.height / 2;
 
 
-    const craneReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+    const craneReferencial = createReferencial(scene, [x, 0, z], identityVector, zeroVector);
 
     // base
-    createObject(craneReferencial, boxGeometry, material, zeroVector, [baseWidth, baseHeight, baseDepth], zeroVector);
+    createObject(craneReferencial, boxGeometry, material, [0, baseHeight / 2, 0], [baseWidth, baseHeight, baseDepth], zeroVector);
     // tower
     createObject(craneReferencial, boxGeometry, material, [0, towerY, 0], [towerWidth, towerHeight, towerWidth], zeroVector);
 
@@ -323,7 +323,7 @@ function createCrane(x, y, z) {
     return craneReferencial;
 }
 
-function createContainer(x, y, z) {
+function createContainer(x, z) {
     'use strict';
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xfff0000 });
@@ -331,87 +331,99 @@ function createContainer(x, y, z) {
 
     const container = new THREE.Object3D();
 
+    const floorY = 0;
+
     // Floor
-    createObject(container, boxGeometry, floorMaterial, [x, y, z], [6, 0.1, 10], zeroVector);
+    createObject(container, boxGeometry, floorMaterial, [x, floorY, z], [8, 0.1, 12], zeroVector);
 
     // Walls
-    createObject(container, boxGeometry, wallMaterial, [x - 3, y + 3, z], [0.1, 6, 10], zeroVector); // Left wall
-    createObject(container, boxGeometry, wallMaterial, [x + 3, y + 3, z], [0.1, 6, 10], zeroVector); // Right wall
-    createObject(container, boxGeometry, wallMaterial, [x, y + 3, z - 5], [6, 6, 0.1], zeroVector); // Front wall
-    createObject(container, boxGeometry, wallMaterial, [x, y + 3, z + 5], [6, 6, 0.1], zeroVector); // Back wall
+    createObject(container, boxGeometry, wallMaterial, [x - 4, floorY + 3, z], [0.1, 6, 12], zeroVector); // Left wall
+    createObject(container, boxGeometry, wallMaterial, [x + 4, floorY + 3, z], [0.1, 6, 12], zeroVector); // Right wall
+    createObject(container, boxGeometry, wallMaterial, [x, floorY + 3, z - 6], [8, 6, 0.1], zeroVector); // Front wall
+    createObject(container, boxGeometry, wallMaterial, [x, floorY + 3, z + 6], [8, 6, 0.1], zeroVector); // Back wall
 
     scene.add(container);
 
     return container;
 }
 
-function createSquareLoad(x, y, z) {
+function createSquareLoad(x, z) {
     'use strict';
     const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
-    const boxReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+    const objectY = boxGeometry.parameters.height / 2;
+
+    const boxReferencial = createReferencial(scene, [x, objectY, z], identityVector, zeroVector);
 
     createObject(boxReferencial, boxGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
     loadCollisionSpheres.push(addCollisionSphere(boxReferencial, 1.75));
-    
+
     return boxReferencial;
 }
 
-function createDodecahedronLoad(x, y, z) {
+function createDodecahedronLoad(x, z) {
     'use strict';
     const dodecahedronGeometry = new THREE.DodecahedronGeometry(2.5, 3);
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
-    const dodecahedronReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+    const objectY = dodecahedronGeometry.parameters.radius / 2;
+
+    const dodecahedronReferencial = createReferencial(scene, [x, objectY, z], identityVector, zeroVector);
 
     createObject(dodecahedronReferencial, dodecahedronGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
     loadCollisionSpheres.push(addCollisionSphere(dodecahedronReferencial, 2.5));
-    
+
     return dodecahedronReferencial;
 }
 
-function createIcosahedronLoad(x, y, z) {
+function createIcosahedronLoad(x, z) {
     'use strict';
     const icosahedronGeometry = new THREE.IcosahedronGeometry(1.3, 1);
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
-    const icosahedronReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+    const objectY = icosahedronGeometry.parameters.radius / 2;
+
+    const icosahedronReferencial = createReferencial(scene, [x, objectY, z], identityVector, zeroVector);
 
     createObject(icosahedronReferencial, icosahedronGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
     loadCollisionSpheres.push(addCollisionSphere(icosahedronReferencial, 1.3));
-    
+
     return icosahedronReferencial;
 }
 
-function createTorusLoad(x, y, z) {
+function createTorusLoad(x, z) {
     'use strict';
-    const torusGeometry = new THREE.TorusGeometry( 1, 0.75, 16, 100 ); ;
+    const torusGeometry = new THREE.TorusGeometry(1, 0.75, 16, 100);;
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
-    const torusReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+    const objectY = torusGeometry.parameters.radius / 2;
+
+    const torusReferencial = createReferencial(scene, [x, objectY, z], identityVector, zeroVector);
 
     createObject(torusReferencial, torusGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
     loadCollisionSpheres.push(addCollisionSphere(torusReferencial, 1.75));
-    
+
     return torusReferencial;
 }
 
-function createTorusKnotLoad(x, y, z) {
+function createTorusKnotLoad(x, z) {
     'use strict';
-    const torusKnotGeometry = new THREE.TorusKnotGeometry( 1.4, 1.3, 8, 75 ); ;
+    const torusKnotGeometry = new THREE.TorusKnotGeometry(1.4, 1.3, 8, 75);;
     const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
-    const torusKnotReferencial = createReferencial(scene, [x, y, z], identityVector, zeroVector);
+    const objectY = torusKnotGeometry.parameters.radius / 2;
+
+    const torusKnotReferencial = createReferencial(scene, [x, objectY, z], identityVector, zeroVector);
 
     createObject(torusKnotReferencial, torusKnotGeometry, material, zeroVector, [1, 1, 1], zeroVector);
 
     loadCollisionSpheres.push(addCollisionSphere(torusKnotReferencial, 2.8));
-    
+
     return torusKnotReferencial;
 }
 
@@ -423,13 +435,13 @@ function createScene() {
     let light = new THREE.AmbientLight(0xffffff, 1);
     scene.add(light);
 
-    createCrane(0, 1.5, 0).name = "Crane";
-    createContainer(20, 0, 0).name = "Container";
-    createSquareLoad(10, 0.5, 7).name = "Load 1";
-    createDodecahedronLoad(10, 0.5, -7).name = "Load 2";
-    createIcosahedronLoad(-8, 0.5, -12).name = "Load 3";
-    createTorusLoad(-15, 0.5, 13.2).name = "Load 4";
-    createTorusKnotLoad(-21, 0.5, -5).name = "Load 5";
+    createCrane(0, 0).name = "Crane";
+    createContainer(20, 0).name = "Container";
+    createSquareLoad(10, 7).name = "Load 1";
+    createDodecahedronLoad(10, -7).name = "Load 2";
+    createIcosahedronLoad(-8, -12).name = "Load 3";
+    createTorusLoad(-15, 13.2).name = "Load 4";
+    createTorusKnotLoad(-21, -5).name = "Load 5";
 }
 
 function setupCameras() {
@@ -538,25 +550,25 @@ function rotateBoomGroup(speed) {
 }
 
 function moveCarForward(position, speed, limit) {
-    car.position.x =  Math.min(position + speed, limit);
+    car.position.x = Math.min(position + speed, limit);
 }
 
 function moveCarBackward(position, speed, limit) {
-    car.position.x =  Math.max(position - speed, limit);
+    car.position.x = Math.max(position - speed, limit);
 }
 
 function moveClawBaseUp(position, speed, limit) {
     let newPosition = Math.min(position + speed, limit);
     cable.scale.y = newPosition;
     cable.position.y = cable.scale.y / 2;
-    clawBase.position.y =  newPosition;
+    clawBase.position.y = newPosition;
 }
 
 function moveClawBaseDown(position, speed, limit) {
     let newPosition = Math.max(position - speed, limit);
     cable.scale.y = newPosition;
     cable.position.y = cable.scale.y / 2;
-    clawBase.position.y =  newPosition;
+    clawBase.position.y = newPosition;
 }
 
 function closeClaw() {
@@ -600,10 +612,10 @@ function animate() {
     for (let i = 0; i < loadCollisionSpheres.length; i++) {
         if (checkSphereCollision(clawCollisionSphere, loadCollisionSpheres[i])) {
             //checks if animation is done, if it is, it doesn't consider collision so that the claw can move back up again
-            if(animationState != 6){
+            if (animationState != 6) {
                 collision = 1;
             }
-            animateClawToContainer(clawCollisionSphere.parent , loadCollisionSpheres[i].parent, {x: 20, y: 0, z: 0}); //TODO: mudar isto para a posição do contentor
+            animateClawToContainer(clawCollisionSphere.parent, loadCollisionSpheres[i].parent, { x: 20, y: 0, z: 0 }); //TODO: mudar isto para a posição do contentor
             break;
         }
     }
@@ -643,7 +655,7 @@ function animate() {
         closeClaw();
     }
 
-    cameraHook.lookAt(cameraHook.position.x, cameraHook.position.y-100, cameraHook.position.z);
+    cameraHook.lookAt(cameraHook.position.x, cameraHook.position.y - 100, cameraHook.position.z);
     updateHUD();
     render();
     requestAnimationFrame(animate);
