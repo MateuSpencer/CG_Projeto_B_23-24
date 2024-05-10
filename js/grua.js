@@ -76,7 +76,7 @@ function animateClawToContainer(claw, load, targetPosition) {
                 let prevClawZ = clawWorldPosition.z;
                 
                 //checks which way to rotate
-                if(load.position.z > 0){
+                if(clawWorldPosition.z > 0){
                     rotateBoomGroup(animationSpeed*0.1);
                 } else {
                     rotateBoomGroup(-animationSpeed*0.1);
