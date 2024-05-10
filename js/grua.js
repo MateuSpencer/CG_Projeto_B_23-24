@@ -261,7 +261,7 @@ function createCrane(x, z) {
 
     // cable
     const cableWidth = 0.5;
-    const cableLength = 28;
+    const cableLength = 26;
     const cableY = - (cableLength / 2 + carHeight / 2);
     clawMinY = -(cableLength + coneGeometry.parameters.height / 2);
     clawMaxY = - (carHeight + coneGeometry.parameters.height) / 2;
