@@ -19,11 +19,12 @@ let clawCollisionSphere;
 let loadCollisionSpheres = [];
 let animationState = 0;
 let animationSpeed = 0.5;
+let cameraHook;
 
 
 function addCollisionSphere(object, radius) {
     const sphereGeometry = new THREE.SphereGeometry(radius, 16, 16);
-    const invisibleMaterial = new THREE.MeshBasicMaterial({ visible: true });
+    const invisibleMaterial = new THREE.MeshBasicMaterial({ visible: false });
     const sphere = new THREE.Mesh(sphereGeometry, invisibleMaterial);
     object.add(sphere);
     return sphere;
@@ -460,9 +461,9 @@ function setupCameras() {
     cameras.push(cameraPerspective);
 
     // Hook camera (movable)
-    const cameraHook = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+    cameraHook = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
     clawBase.add(cameraHook);
-    cameraHook.lookAt(cameraHook.position.x, 0, cameraHook.position.y);
+    cameraHook.lookAt(cameraHook.position.x, cameraHook.position.y - 100, cameraHook.position.z);
     cameras.push(cameraHook);
 
     activeCamera = cameraPerspective;
@@ -642,6 +643,7 @@ function animate() {
         closeClaw();
     }
 
+    cameraHook.lookAt(cameraHook.position.x, cameraHook.position.y-100, cameraHook.position.z);
     updateHUD();
     render();
     requestAnimationFrame(animate);
